@@ -1,0 +1,23 @@
+{
+  "name": "minkeyboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "jquery.minkeyboard.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabmlk/minkeyboard.git"
+  },
+  "author": "fabien lanoux",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fabmlk/minkeyboard/issues"
+  },
+  "homepage": "https://github.com/fabmlk/minkeyboard#readme",
+  "dependencies": {
+    "jquery": "^2.1.4",
+    "jquery-ui": "^1.10.5"
+  }
+}

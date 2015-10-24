@@ -1,0 +1,12 @@
+.fab-minkeyboard {
+	max-width: 400px;
+	position: absolute;
+}
+
+.fab-minkeyboard-key {
+	display: table-cell;
+	width: 60px; 
+	text-align: center;
+	cursor: pointer;
+	cursor: hand;
+}
