@@ -96,35 +96,51 @@
             }
         },
 
+		// print character at cursor current position (replace text if selected)
         _minkeyPrint: function (keyChar) {
-            this.element[0].value += keyChar; // add key char to input field
+			var selStart = this.element[0].selectionStart;
+			var selEnd = this.element[0].selectionEnd;
+			var value = this.element[0].value;
+
+            this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
+			this.element[0].selectionStart = this.element[0].selectionEnd = selStart + 1; // set cursor after current position
         },
 
+		// delete text selected or character before current selection
         _minkeySuppr: function () {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
             var value = this.element[0].value;
             
-            if (selEnd - selStart > 0) { // text selected, supprime selection
-                value = value.slice(0, selStart) + value.slice(selEnd);
-            } else { // supprime juste dernier char
-                value = value.slice(0, -1);
+            if (selEnd === selStart) { // pas de text selected
+				selEnd = selStart;
+				selStart = selStart - 1;
             }
+            value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].value = value;
+			this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
         },
 
         // par défaut, quand on appuie sur valider, on focus le prochain élément ayant minkeyboard widget
+		// si le dernier element est atteint, on trigger blur event
         _minkeyValidate: function () {
-            var targets, nextTargetPosition;
+            // respecte W3C en reprenant certaines instructions appliquées aux tabindex. Ne doivent pas recevoir de focus:
+            // - un input element hidden http://www.w3.org/TR/html5/editing.html#attr-tabindex
+            // - un disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
+            var targets = $("." + this.widgetFullName + "-target:visible:enabled"),
+				targetIndex = targets.index(this.element),
+				nextTargetIndex = targetIndex + 1;	
             
-            if (this._trigger("validate", null) !== false) { // si le user n'a pas preventDefault
-                // respecte W3C en reprenant certaines instructions appliquées aux tabindex. Ne doivent pas recevoir de focus:
-                // - un input element hidden http://www.w3.org/TR/html5/editing.html#attr-tabindex
-                // - un disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
-                targets = $("." + this.widgetFullName + "-target:visible:enabled");
-                nextTargetPosition = targets.index(this.element) + 1;
+            if (this._trigger("validate", null, {
+				index: targetIndex,
+				targets: targets
+			}) !== false) { // si le user n'a pas preventDefault
                 this.close(); // ne pas oublier de fermer le current
-                targets.eq(nextTargetPosition).focus(); // give focus au prochain
+				if (nextTargetIndex >= targets.length) {
+					this.element.blur(); // fini!
+				} else {
+					targets.eq(nextTargetIndex).focus(); // give focus au prochain
+				}
             }
         },
 
@@ -161,7 +177,7 @@
                      break;
                  case "\x08":
                      keyName = "backspace";
-                     handler = this._minkeySuppr;
+					 handler = this._minkeySuppr;
                      keyContent = '<i class="material-icons">backspace</i>';
                      break;
                  case " ":

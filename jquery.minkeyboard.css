@@ -65,6 +65,12 @@
     float: right;
 }
 
+.fab-minkeyboard-enter {
+    height: 4.1em;
+    line-height: 4.1em; 
+    clear: right;
+}
+
 .fab-minkeyboard-space {
     width: 8.3em;
 }
