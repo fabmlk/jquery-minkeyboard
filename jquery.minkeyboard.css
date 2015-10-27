@@ -15,7 +15,7 @@
   display: inline-block;
   width: 1em;
   height: 1em;
-  line-height: 1;
+  /*line-height: 1;*/
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
@@ -35,20 +35,36 @@
 }
 
 .fab-minkeyboard {
-	max-width: 400px;
+	/*max-width: 400px;*/
 	position: absolute;
 }
 
 .fab-minkeyboard-key {
 	display: table-cell;
-	min-width: 2em;
+	display: inline-block;
+        min-width: 2em;
         height: 2em;
+        line-height: 2em;
 	text-align: center;
 	cursor: pointer;
 	cursor: hand;
         vertical-align: middle;
+        user-select: none; /* not supported yet, have to use prefix */
+        -webkit-user-select: none;
+        -moz-user-select: none;
 }
 
-.fab-minkeyboard-key.fab-minkeyboard-space {
-    width: 12em;
+.fab-minkeyboard-key:active {
+    transform: translateY(1px);
+    background: #e6e6e6;
+    box-shadow: inset 0px 0px 10px 0px rgba(50, 50, 50, 0.20)
+}
+
+.fab-minkeyboard-backspace, .fab-minkeyboard-enter {
+    min-width: 4em;
+    float: right;
+}
+
+.fab-minkeyboard-space {
+    width: 8.3em;
 }
