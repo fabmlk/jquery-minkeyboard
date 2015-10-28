@@ -145,6 +145,7 @@
             }
         },
 
+        // returns false si maxlength atteint, true sinon
         _minkeyPress: function () {
             var max = this.element.attr("max") || this.element.attr("maxlength") || -1;
 
@@ -160,9 +161,11 @@
                 this._trigger("full", null, {
                      patternMismatch: this.element[0].validity.patternMismatch
                 });
+                return false;
             }
             // redonne le focus au input
             this.element.focus();
+            return true;
         },
 
         _createKey: function (keyChar) {
@@ -206,8 +209,9 @@
 
             this._on(key, {
                 click: function () {
-                    this._minkeyPress();
-                    handler.call(this, keyChar);
+                    if (this._minkeyPress() !== false) {
+                        handler.call(this, keyChar);
+                    }
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
                      * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
                      * On préferera utiliser css :active pour ça! */
@@ -304,6 +308,14 @@
                     row5.append(key);
                 }
             });
+            
+            var digitsFound = "0123456789".match(/[0-9]*/);
+            if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special 
+                row1.children(":gt(2):lt(3)").appendTo(row2);
+                row1.children(":gt(2):lt(-1)").appendTo(row3);
+                row1.children(":eq(3)").appendTo(row4);
+            }
+            
             row2.append(this._createKey("\x08"));
             row3.append(this._createKey("\x0A"));
             this.keyboard.append(row1).append(row2).append(row3).append(row4).append(row5);
