@@ -147,7 +147,8 @@
 
         // returns false si maxlength atteint, true sinon
         _minkeyPress: function () {
-            var max = this.element.attr("max") || this.element.attr("maxlength") || -1;
+            var notfull = true,
+                max = this.element.attr("max") || this.element.attr("maxlength") || -1;
 
             if (this.element.val().length >= max) {
                 // _trigger() est fourni par widget factory et permet de trigger un custom event
@@ -161,11 +162,11 @@
                 this._trigger("full", null, {
                      patternMismatch: this.element[0].validity.patternMismatch
                 });
-                return false;
+                notfull = false;
             }
             // redonne le focus au input
             this.element.focus();
-            return true;
+            return notfull;
         },
 
         _createKey: function (keyChar) {
