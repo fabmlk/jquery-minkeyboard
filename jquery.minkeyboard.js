@@ -149,7 +149,7 @@
         _minkeyPress: function () {
             var max = this.element.attr("max") || this.element.attr("maxlength") || -1;
 
-            if (this.element.val().length === max) {
+            if (this.element.val().length >= max) {
                 // _trigger() est fourni par widget factory et permet de trigger un custom event
                 // full a ete defini en option pour que le user puisse listen via un callback qui sera evoque ici
                 // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
