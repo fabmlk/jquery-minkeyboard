@@ -9,11 +9,10 @@
 		], factory );
 	} else if(typeof module === 'object' && module.exports) {
 		// Node/CommonJS
-		var jq = require("jquery");
-		require("jquery-ui/core");
-	    require("jquery-ui/position");
+		require("jquery-ui/core"); // utilisé pour keyCode TAB et :tabbable selector
+                require("jquery-ui/position");
 		require("jquery-ui/widget");	
-		module.exports = factory(jq);
+		module.exports = factory(require("jquery"));
 	} else {
 		// Browser globals
 		factory( jQuery );
@@ -71,7 +70,7 @@
         // close est triggered aussi quand on click sur le document pour cacher le current minkeyboard
         // cet event est fired autant de fois qu'il y a de minkeyboard widgets
         // Si on focus un input avec widget, open sera called, mais on fait attention a ce qu'il ne soit pas closed juste apres!
-        // Prend aussi en compte la navigation via pression sur Tab (keycode 9)
+        // Prend aussi en compte la navigation via pression sur Tab (on peut utiliser directement $.ui.keyCode fournit par jquery-ui/core)
         close: function (event) {
             if (!event
                 || (event.target !== this.element[0] // click sur l'input déjà actif
@@ -79,7 +78,7 @@
                     // on veut utiliser closest pour trouver si le target ou un de ses parents est une key
                     // (par ex click sur span icone contenue dans une span key)
                     && !$(event.target).closest("." + this.widgetFullName + "-key").length)
-                || (event.keyCode || event.which) === 9 ) {
+                || (event.keyCode || event.which) === $.ui.keyCode.TAB ) {
                 this._hide(this.keyboard, this.options.hide);
             }
         },
@@ -98,12 +97,12 @@
 
 		// print character at cursor current position (replace text if selected)
         _minkeyPrint: function (keyChar) {
-			var selStart = this.element[0].selectionStart;
-			var selEnd = this.element[0].selectionEnd;
-			var value = this.element[0].value;
+            var selStart = this.element[0].selectionStart;
+            var selEnd = this.element[0].selectionEnd;
+            var value = this.element[0].value;
 
             this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
-			this.element[0].selectionStart = this.element[0].selectionEnd = selStart + 1; // set cursor after current position
+            this.element[0].selectionStart = this.element[0].selectionEnd = selStart + 1; // set cursor after current position
         },
 
 		// delete text selected or character before current selection
@@ -118,7 +117,7 @@
             }
             value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].value = value;
-			this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
+            this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
         },
 
         // par défaut, quand on appuie sur valider, on focus le prochain élément ayant minkeyboard widget
@@ -127,7 +126,9 @@
             // respecte W3C en reprenant certaines instructions appliquées aux tabindex. Ne doivent pas recevoir de focus:
             // - un input element hidden http://www.w3.org/TR/html5/editing.html#attr-tabindex
             // - un disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
-            var targets = $("." + this.widgetFullName + "-target:visible:enabled"),
+            // On pourrait utiliser jquery :visible:enabled selector mais jquery ui core fournit :tabbable directement
+            // (différent de :focusable par le fait que tab index < 0 est focusable mais pas tabbable
+            var targets = $("." + this.widgetFullName + "-target:tabbable"),
 				targetIndex = targets.index(this.element),
 				nextTargetIndex = targetIndex + 1;	
             
