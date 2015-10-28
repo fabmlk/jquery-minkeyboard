@@ -38,11 +38,15 @@
     box-shadow: 0px 4px 18px 0px rgba(50, 50, 50, 0.89);
 }
 
+.fab-minkeyboard > div {
+    display: inline-block;
+    line-height: 1em;
+}
+
 .fab-minkeyboard-key {
     display: table-cell;
     width: 1em;
-    height: 1em;
-    line-height: 1em;
+/*    line-height: 1em; */
     text-align: center;
     cursor: pointer;
     cursor: hand;
@@ -59,7 +63,7 @@
     box-shadow: inset 0px 0px 10px 0px rgba(50, 50, 50, 0.20)
 }
 
-.fab-minkeyboard-key > *:first-child {
+.fab-minkeyboard-key > * {
     display: block;
     font-size: .4em;
 }
@@ -70,6 +74,10 @@
 
 .fab-minkeyboard-key-backspace, .fab-minkeyboard-key-enter {
     width: 2em;
+}
+
+.fab-minkeyboard-key-enter {
+    line-height: 3.10em;
 }
 
 .fab-minkeyboard-key-space {

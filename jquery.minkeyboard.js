@@ -54,14 +54,15 @@
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
-            keyboardLayout: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+            mainpadLayout: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                      ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-                     ['W', 'X', 'C', 'V', 'B', 'N', 'espace', "'", '-']],
+                     ['W', 'X', 'C', 'V', 'B', 'N'],
+					 ["'", '-', ' ']],
             numpadLayout: [['7', '8', '9'],
                            ['4', '5', '6'],
                            ['1', '2', '3'],
                            ['0']],
-            controlsPosition: "middle right"
+			controlpadLayout: [["\x08"], ["\x0A"]]
         },
 
 
@@ -327,61 +328,39 @@
             this._buildKeyboardFromKeyChars(keyChars);
         },
         
-        _getKeyCoordinates: function (keyChar, layout) {
-            var continueLoop = true,
-                coordinates = undefined;
-            
-            $.each(layout, function (x, row) {
-                $.each(row, function (y, keyCmp) {
-                    if (keyChar === keyCmp) {
-                        coordinates = [x, y];
-                        return continueLoop = false; // break
-                    }
-                });
-                if (!continueLoop) {
-                    return false; // break
-                }
-            });
-            return coordinates;
-        },
-
-        _buildKeyboardFromKeyChars: function(keyChars) {
+        _buildKeyboardFromKeyChars: function (keyChars) {
             var self = this,
-                domKeyboardLayout = $(true, [], this.options.keyboardLayout),// deep copy
-                domNumpadLayout = $(true, [], this.options.numpadLayout); // deep copy
+				mainPad = $("<div>").addClass(this.widgetFullName + "-mainpad"),
+				numPad = $("<div>").addClass(this.widgetFullName + "-numpad"),
+				controlPad = $("<div>").addClass(this.widgetFullName + "-controlpad");
 
-            $.each(keyChars, function (idx, keyChar) {
-                var layout = ("0123456789".indexOf(keyChar) !== -1 ? domNumpadLayout : domKeyboardLayout);
-                var coordinates = self._getKeyCoordinates(keyChar, layout);
-                if (coordinates) {
-                    layout[coordinates[0]][coordinates[1]] = self._createKey(keyChar);
-                }
-            });
-            
-            this.keyboard.append(squares);
-            
-//            var digitsFound = keyChars.join("").match(/[0-9]+/);
-//            if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special: only digits
-//                
-//                row1.children(":gt(2):lt(3)").appendTo(row2);
-//                row1.children(":gt(2):lt(3)").appendTo(row3);
-//                row1.children(":eq(3)").appendTo(row4);
-//                
-//                rowSupprKey = row1;
-//                rowEnterKey = row2;
-//                this.keyboard.addClass(this.widgetFullName + "-numpad");
-//            }
-//            
-//            rowSupprKey.append(this._createKey("\x08"));
-//            rowEnterKey.append(this._createKey("\x0A"));
-//            this.keyboard.append(row1).append(row2).append(row3).append(row4).append(row5);
-        //           col1.append(row1).append(row2).append(row3).append(row4).append(row5);
-        //           if (row1.children().length > 0 && col2.children().length === 0) {
-        //               col2.append($("<span>").addClass(this.widgetFullName + "-" + "keyspacer"));
-        //           }
-        //           col2.append(this._createKey("\x08")).append(this._createKey("\x0A"));
-        //           this.keyboard.append(col1).append(col2);
-        },
+			keyChars += "\x0A\x08";
+
+			function convertCharRowToDomRow(charRow) {
+				return $.map(charRow, function (keyChar) {
+					if (keyChars.indexOf(keyChar) !== -1) {
+						return self._createKey(keyChar)[0]; // we need the dom element
+					}
+				});
+			}
+
+			$.each(this.options.mainpadLayout, function (idx, charRow) {
+				var domRow = convertCharRowToDomRow(charRow);
+				mainPad.append($("<div>").append($(domRow)));
+			});
+
+			$.each(this.options.numpadLayout, function (idx, charRow) {
+				var domRow = convertCharRowToDomRow(charRow);
+				numPad.append($("<div>").append($(domRow)));
+			});
+
+			$.each(this.options.controlpadLayout, function (idx, charRow) {
+				var domRow = convertCharRowToDomRow(charRow);
+				controlPad.append($("<div>").append($(domRow)));
+			});
+
+			this.keyboard.append(mainPad).append(numPad).append(controlPad);
+		},            
 
         // _destroy() est appele automatiquement quand destroy() est appele explicitement (aka par le user via .minkeyboard("destroy"))
         // Ce code s'execute apres le built-in destroy()
