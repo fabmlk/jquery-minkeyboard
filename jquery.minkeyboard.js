@@ -128,7 +128,7 @@
             // - un disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
             // On pourrait utiliser jquery :visible:enabled selector mais jquery ui core fournit :tabbable directement
             // (différent de :focusable par le fait que tab index < 0 est focusable mais pas tabbable
-            var targets = $("." + this.widgetFullName + "-target:tabbable"),
+            var targets = $("." + this.widgetFullName + "-target:focusable"),
 				targetIndex = targets.index(this.element),
 				nextTargetIndex = targetIndex + 1;	
             
