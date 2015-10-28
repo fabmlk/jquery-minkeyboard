@@ -151,9 +151,10 @@
         // returns false si maxlength atteint, true sinon
         _minkeyPress: function () {
             var notfull = true,
-                max = this.element.attr("max") || this.element.attr("maxlength") || -1;
+                valLength = this.element.val().length,
+                max = this.element.attr("max") || this.element.attr("maxlength") || valLength + 1;
 
-            if (this.element.val().length >= max) {
+            if (valLength >= max) {
                 // _trigger() est fourni par widget factory et permet de trigger un custom event
                 // full a ete defini en option pour que le user puisse listen via un callback qui sera evoque ici
                 // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
@@ -213,7 +214,7 @@
 
             this._on(key, {
                 click: function () {
-                    var isFull = (this._minKeyPress() === false);
+                    var isFull = (this._minkeyPress() === false);
                     handler.call(this, keyChar, isFull);
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
                      * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
