@@ -309,7 +309,7 @@
                 }
             });
             
-            var digitsFound = "0123456789".match(/[0-9]*/);
+            var digitsFound = keyChars.join("").match(/[0-9]+/);
             if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special 
                 row1.children(":gt(2):lt(3)").appendTo(row2);
                 row1.children(":gt(2):lt(-1)").appendTo(row3);
