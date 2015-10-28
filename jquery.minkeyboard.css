@@ -39,6 +39,10 @@
 	position: absolute;
 }
 
+.fab-minkeyboard-numpad .fab-minkeyboard-0 {
+    min-width: 6.2em;
+}
+
 .fab-minkeyboard-key {
 	display: table-cell;
 	display: inline-block;

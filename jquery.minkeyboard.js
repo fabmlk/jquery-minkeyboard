@@ -285,12 +285,9 @@
         },
 
         _buildKeyboardFromKeyChars: function(keyChars) {
-             var self = this,
-                 row1 = $("<div>").addClass(this.widgetFullName + "-digits"),
-                 row2 = $("<div>").addClass(this.widgetFullName + "-A-P"),
-                 row3 = $("<div>").addClass(this.widgetFullName + "-Q-M"),
-                 row4 = $("<div>").addClass(this.widgetFullName + "-W-N-space"),
-                 row5 = $("<div>").addClass(this.widgetFullName + "-others");
+            var self = this,
+                row1 = $("<div>"), row2 = $("<div>"), row3 = $("<div>"), row4 = $("<div>"), row5 = $("<div>");
+            var rowEnterKey = row3, rowSupprKey = row2;
 
             $.each(keyChars, function (idx, keyChar) {
                 var key = self._createKey(keyChar);
@@ -311,13 +308,18 @@
             
             var digitsFound = keyChars.join("").match(/[0-9]+/);
             if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special 
+                
                 row1.children(":gt(2):lt(3)").appendTo(row2);
-                row1.children(":gt(2):lt(-1)").appendTo(row3);
+                row1.children(":gt(2):lt(3)").appendTo(row3);
                 row1.children(":eq(3)").appendTo(row4);
+                
+                rowSupprKey = row1;
+                rowEnterKey = row2;
+                this.keyboard.addClass(this.widgetFullName + "-numpad");
             }
             
-            row2.append(this._createKey("\x08"));
-            row3.append(this._createKey("\x0A"));
+            rowSupprKey.append(this._createKey("\x08"));
+            rowEnterKey.append(this._createKey("\x0A"));
             this.keyboard.append(row1).append(row2).append(row3).append(row4).append(row5);
         //           col1.append(row1).append(row2).append(row3).append(row4).append(row5);
         //           if (row1.children().length > 0 && col2.children().length === 0) {
