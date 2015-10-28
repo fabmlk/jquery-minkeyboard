@@ -45,7 +45,8 @@
             },
             pattern: "", // setting manuel du pattern est possible aussi
             keys: null, // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
-            validate: null // callback quand le user click sur valider/enter bouton
+            validate: null, // callback quand le user click sur valider/enter bouton
+            change: null // callback event quand l'input change (utile car jquery on change listener ne marche pas pour programmatic update!
         },
 
 
@@ -106,6 +107,10 @@
             }
             this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart + 1; // set cursor after current position
+            this._trigger("change", null, {
+                old: value,
+                new: this.element[0].value
+            });
         },
 
 		// delete text selected or character before current selection
@@ -118,9 +123,12 @@
                 selEnd = selStart;
                 selStart = selStart - 1;
             }
-            value = value.slice(0, selStart) + value.slice(selEnd);
-            this.element[0].value = value;
+            this.element[0].value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
+            this._trigger("change", null, {
+                old: value,
+                new: this.element[0].value
+            });
         },
 
         // par défaut, quand on appuie sur valider, on focus le prochain élément ayant minkeyboard widget
