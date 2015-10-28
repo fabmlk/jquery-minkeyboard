@@ -97,13 +97,13 @@
 
 		// print character at cursor current position (replace text if selected)
         _minkeyPrint: function (keyChar, isFull) {
-            if (isFull) {
-                return;
-            }
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
             var value = this.element[0].value;
 
+            if (selEnd === selStart && isFull) { // nothing selected and full
+                return;
+            }
             this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart + 1; // set cursor after current position
         },
@@ -115,8 +115,8 @@
             var value = this.element[0].value;
             
             if (selEnd === selStart) { // pas de text selected
-				selEnd = selStart;
-				selStart = selStart - 1;
+                selEnd = selStart;
+                selStart = selStart - 1;
             }
             value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].value = value;
