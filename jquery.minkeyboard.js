@@ -96,7 +96,10 @@
         },
 
 		// print character at cursor current position (replace text if selected)
-        _minkeyPrint: function (keyChar) {
+        _minkeyPrint: function (keyChar, isFull) {
+            if (isFull) {
+                return;
+            }
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
             var value = this.element[0].value;
@@ -210,9 +213,8 @@
 
             this._on(key, {
                 click: function () {
-                    if (this._minkeyPress() !== false) {
-                        handler.call(this, keyChar);
-                    }
+                    var isFull = this._minKeyPress();
+                    handler.call(this, keyChar, isFull);
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
                      * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
                      * On préferera utiliser css :active pour ça! */
