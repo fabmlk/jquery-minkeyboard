@@ -30,23 +30,30 @@
             appendTo: null, // jquery selector ou montrer le keyboard, null pour montrer pres de l'input
                                             // ne doit pas etre resetter dynamiquement! (ceci est attendu, voir jquery ui dialog widget)
             full: null, // callback quand max ou sinon maxlength est atteint, recoit en param le triggering event et object avec attribut patternMismatch indiquant si le pattern est valid ou non
-                                    // le nom "full" est le nom de l'event qu'on va devoir trigger via _trigger('full')
-                                    // en interne jquery va creer un event portant le nom du widget concatene, i.e le user devra listen par:
-                                    // $(el).on('minkeyboardfull',...)
-                                    // "All widgets have a create event which is triggered upon instantiation"
+                        // le nom "full" est le nom de l'event qu'on va devoir trigger via _trigger('full')
+                        // en interne jquery va creer un event portant le nom du widget concatene, i.e le user devra listen par:
+                        // $(el).on('minkeyboardfull',...)
+                        // "All widgets have a create event which is triggered upon instantiation"
+                        // passe en param object avec property patternMismatch indiquant si il y a patternmismatch 
 
             // built-in options pour animation quand on show/hide le widget
             show: false, // true for classic fadeIn
             hide: false, // true classic fadeOut
             position: { // inspire du tooltip widget
-                    my: "center top", // positionnement de mon objet (keyboard)
-                    at: "center bottom", // positionnement du target (input)
-                    collision: "flipfit"
+                my: "center top", // positionnement de mon objet (keyboard)
+                at: "center bottom", // positionnement du target (input)
+                collision: "flipfit"
             },
             pattern: "", // setting manuel du pattern est possible aussi
             keys: null, // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
             validate: null, // callback quand le user click sur valider/enter bouton
+                        // passe en param object properties:
+                        //  - index: la position du current input parmis tous ceux associés au widget
+                        //  - targets: jQuery Collection des inputs associés au widget
             change: null // callback event quand l'input change (utile car jquery on change listener ne marche pas pour programmatic update!
+                        // passe en param object properties:
+                        // - old: ancienne valeur de l'input
+                        // - new: nouvelle valeur de l'input
         },
 
 
@@ -63,7 +70,7 @@
             // click sur keys bubble up sur keyboard: on cancel
             this._on(this.keyboard, {
                 "click": function (event) {
-                        event.stopPropagation();
+                    event.stopPropagation();
                 }	
             });
         },
@@ -96,7 +103,8 @@
             }
         },
 
-		// print character at cursor current position (replace text if selected)
+        // print character at cursor current position (replace text if selected)
+        // trigger change event if value changed
         _minkeyPrint: function (keyChar, isFull) {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
@@ -107,13 +115,17 @@
             }
             this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart + 1; // set cursor after current position
-            this._trigger("change", null, {
-                old: value,
-                new: this.element[0].value
-            });
+            
+            if (value !== this.element[0].value) {
+                this._trigger("change", null, {
+                    old: value,
+                    new: this.element[0].value
+                });
+            }
         },
 
-		// delete text selected or character before current selection
+        // delete text selected or character before current selection
+        // trigger change event if value changed
         _minkeySuppr: function () {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
@@ -125,10 +137,13 @@
             }
             this.element[0].value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
-            this._trigger("change", null, {
-                old: value,
-                new: this.element[0].value
-            });
+            
+            if (value !== this.element[0].value) {
+                this._trigger("change", null, {
+                    old: value,
+                    new: this.element[0].value
+                });
+            }
         },
 
         // par défaut, quand on appuie sur valider, on focus le prochain élément ayant minkeyboard widget
@@ -137,22 +152,23 @@
             // respecte W3C en reprenant certaines instructions appliquées aux tabindex. Ne doivent pas recevoir de focus:
             // - un input element hidden http://www.w3.org/TR/html5/editing.html#attr-tabindex
             // - un disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
-            // On pourrait utiliser jquery :visible:enabled selector mais jquery ui core fournit :tabbable directement
-            // (différent de :focusable par le fait que tab index < 0 est focusable mais pas tabbable
+            // On pourrait utiliser jquery :visible:enabled selector mais jquery ui core fournit :focusable directement
+            // (différent de :tabbable par le fait que tab index < 0 est focusable mais pas tabbable)
+            // Note: focusable semble respecter hidden input, pas tabbable! bug ?
             var targets = $("." + this.widgetFullName + "-target:focusable"),
-				targetIndex = targets.index(this.element),
-				nextTargetIndex = targetIndex + 1;	
+                targetIndex = targets.index(this.element),
+                nextTargetIndex = targetIndex + 1;	
             
             if (this._trigger("validate", null, {
-				index: targetIndex,
-				targets: targets
-			}) !== false) { // si le user n'a pas preventDefault
+                    index: targetIndex,
+                    targets: targets
+            }) !== false) { // si le user n'a pas preventDefault
                 this.close(); // ne pas oublier de fermer le current
-				if (nextTargetIndex >= targets.length) {
-					this.element.blur(); // fini!
-				} else {
-					targets.eq(nextTargetIndex).focus(); // give focus au prochain
-				}
+                if (nextTargetIndex >= targets.length) {
+                    this.element.blur(); // fini!
+                } else {
+                    targets.eq(nextTargetIndex).focus(); // give focus au prochain
+                }
             }
         },
 
@@ -182,41 +198,45 @@
         },
 
         _createKey: function (keyChar) {
-             var keyName, key,
-                 keyContent = keyChar,
-                 handler = this._minkeyPrint;
+            var keyName, key,
+                keyContent = keyChar,
+                handler = this._minkeyPrint;
 
-             switch (keyChar) {
-                 case "\x0A":
-                     keyName = "enter";
-                     handler = this._minkeyValidate;
-                     keyContent = '<i class="material-icons">check</i>';
-                     break;
-                 case "\x08":
-                     keyName = "backspace";
-					 handler = this._minkeySuppr;
-                     keyContent = '<i class="material-icons">backspace</i>';
-                     break;
-                 case " ":
-                     keyName = "space";
-                     break;
-                 case "-":
-                     keyName = "dash";
-                     break;
-                 case "'":
-                     keyName = "quote";
-                     break;
-                 default:
-                     keyName = keyChar;
-             }
+            switch (keyChar) {
+                case "\x0A":
+                    keyName = "enter";
+                    handler = this._minkeyValidate;
+                    keyContent = '<i class="material-icons">check</i>';
+                    break;
+                case "\x08":
+                    keyName = "backspace";
+                    handler = this._minkeySuppr;
+                    keyContent = '<i class="material-icons">backspace</i>';
+                    break;
+                case " ":
+                    keyName = "space";
+                    keyContent = 'espace';
+                    handler = function (keyChar, isFull) {
+                        this._minkeyPrint(' ', isFull);
+                    };
+                    break;
+                case "-":
+                    keyName = "dash";
+                    break;
+                case "'":
+                    keyName = "quote";
+                    break;
+                default:
+                    keyName = keyChar;
+            }
 
             key = $("<span>")
-                 .addClass(this.widgetFullName + "-key  ui-state-default ui-corner-all")
-                 .addClass(this.widgetFullName + "-" + keyName)
-                 .attr({
-                      role: "button"
-                 })
-                 .html(keyContent);
+                .addClass(this.widgetFullName + "-key  ui-state-default ui-corner-all")
+                .addClass(this.widgetFullName + "-" + keyName)
+                .attr({
+                     role: "button"
+                })
+                .html(keyContent);
 
             this._hoverable(key); // add class ui-state-hover automatiquement on hover
 
