@@ -69,7 +69,7 @@
             // we don't want to trigger hiding triggered from click to document
             // click sur keys bubble up sur keyboard: on cancel
             this._on(this.keyboard, {
-                "click": function (event) {
+                mousedown: function (event) {
                     event.stopPropagation();
                 }	
             });
@@ -96,9 +96,9 @@
             // WARNING: element doit etre visible avant d'etre positionne!
             // (https://forum.jquery.com/topic/position-keeps-adding-original-left-and-top-to-current-values-in-ie-8)
             this._show(this.keyboard, this.options.show);
-            if (event && !this.options.appendTo) { // par defaut, positionne pres de l'input
+            if (!this.options.appendTo) { // par defaut, positionne pres de l'input
                 this.keyboard.position($.extend({
-                        of: event.target
+                        of: (event && event.target) || this.element
                 }, this.options.position));
             }
         },
