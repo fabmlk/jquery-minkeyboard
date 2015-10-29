@@ -18,7 +18,7 @@
 		factory( jQuery );
 	}
 }(function( $ ) {
-    var _keypad = "1234567890AZERTYUIOPQSDFGHJKLMWXCVBN '-";
+    var _keypad = "AZERTYUIOP789QSDFGHJKLM456WXCVBN '-1230";
 
     // tout attribut commencant par '_' est automatiquement ignoree et non accessible via $.widget('minkeyboard', 'mymethode')
     // (mais toujours evocable directement via trick data() ou instance(): voir ci-dessous)
@@ -50,10 +50,18 @@
                         // passe en param object properties:
                         //  - index: la position du current input parmis tous ceux associés au widget
                         //  - targets: jQuery Collection des inputs associés au widget
-            change: null // callback event quand l'input change (utile car jquery on change listener ne marche pas pour programmatic update!
+            change: null, // callback event quand l'input change (utile car jquery on change listener ne marche pas pour programmatic update!
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
+            keyboardLayout: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                     ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
+                     ['W', 'X', 'C', 'V', 'B', 'N', 'espace', "'", '-']],
+            numpadLayout: [['7', '8', '9'],
+                           ['4', '5', '6'],
+                           ['1', '2', '3'],
+                           ['0']],
+            controlsPosition: "middle right"
         },
 
 
@@ -318,42 +326,55 @@
             keyChars = _keypad.match(regex); // on obtient un array des keys necessaires matchant le pattern
             this._buildKeyboardFromKeyChars(keyChars);
         },
+        
+        _getKeyCoordinates: function (keyChar, layout) {
+            var continueLoop = true,
+                coordinates = undefined;
+            
+            $.each(layout, function (x, row) {
+                $.each(row, function (y, keyCmp) {
+                    if (keyChar === keyCmp) {
+                        coordinates = [x, y];
+                        return continueLoop = false; // break
+                    }
+                });
+                if (!continueLoop) {
+                    return false; // break
+                }
+            });
+            return coordinates;
+        },
 
         _buildKeyboardFromKeyChars: function(keyChars) {
             var self = this,
-                row1 = $("<div>"), row2 = $("<div>"), row3 = $("<div>"), row4 = $("<div>"), row5 = $("<div>");
-            var rowEnterKey = row3, rowSupprKey = row2;
+                domKeyboardLayout = $(true, [], this.options.keyboardLayout),// deep copy
+                domNumpadLayout = $(true, [], this.options.numpadLayout); // deep copy
 
             $.each(keyChars, function (idx, keyChar) {
-                var key = self._createKey(keyChar);
-                if (isNaN(parseInt(keyChar)) === false || keyChar === "'" || keyChar === "-") {
-                    row1.append(key);
-                } else if ("AZERTYUIOP".indexOf(keyChar) !== -1) {
-                    row2.append(key);
-                } else if ("QSDFGHJKLM".indexOf(keyChar) !== -1) {
-                    row3.append(key);
-                } else if ("WXCVBN ".indexOf(keyChar) !== -1) {
-                    row4.append(key);
-                } else {
-                    row5.append(key);
+                var layout = ("0123456789".indexOf(keyChar) !== -1 ? domNumpadLayout : domKeyboardLayout);
+                var coordinates = self._getKeyCoordinates(keyChar, layout);
+                if (coordinates) {
+                    layout[coordinates[0]][coordinates[1]] = self._createKey(keyChar);
                 }
             });
             
-            var digitsFound = keyChars.join("").match(/[0-9]+/);
-            if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special: only digits
-                
-                row1.children(":gt(2):lt(3)").appendTo(row2);
-                row1.children(":gt(2):lt(3)").appendTo(row3);
-                row1.children(":eq(3)").appendTo(row4);
-                
-                rowSupprKey = row1;
-                rowEnterKey = row2;
-                this.keyboard.addClass(this.widgetFullName + "-numpad");
-            }
+            this.keyboard.append(squares);
             
-            rowSupprKey.append(this._createKey("\x08"));
-            rowEnterKey.append(this._createKey("\x0A"));
-            this.keyboard.append(row1).append(row2).append(row3).append(row4).append(row5);
+//            var digitsFound = keyChars.join("").match(/[0-9]+/);
+//            if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special: only digits
+//                
+//                row1.children(":gt(2):lt(3)").appendTo(row2);
+//                row1.children(":gt(2):lt(3)").appendTo(row3);
+//                row1.children(":eq(3)").appendTo(row4);
+//                
+//                rowSupprKey = row1;
+//                rowEnterKey = row2;
+//                this.keyboard.addClass(this.widgetFullName + "-numpad");
+//            }
+//            
+//            rowSupprKey.append(this._createKey("\x08"));
+//            rowEnterKey.append(this._createKey("\x0A"));
+//            this.keyboard.append(row1).append(row2).append(row3).append(row4).append(row5);
         //           col1.append(row1).append(row2).append(row3).append(row4).append(row5);
         //           if (row1.children().length > 0 && col2.children().length === 0) {
         //               col2.append($("<span>").addClass(this.widgetFullName + "-" + "keyspacer"));

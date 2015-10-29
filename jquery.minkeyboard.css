@@ -11,7 +11,7 @@
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
+  /*font-size: 24px;   Preferred icon size */
   display: inline-block;
   text-transform: none;
   letter-spacing: normal;
@@ -39,7 +39,7 @@
 }
 
 .fab-minkeyboard-key {
-    display: inline-block;
+    display: table-cell;
     width: 1em;
     height: 1em;
     line-height: 1em;
@@ -60,6 +60,7 @@
 }
 
 .fab-minkeyboard-key > *:first-child {
+    display: block;
     font-size: .4em;
 }
 
@@ -69,12 +70,6 @@
 
 .fab-minkeyboard-key-backspace, .fab-minkeyboard-key-enter {
     width: 2em;
-    float: right;
-}
-
-.fab-minkeyboard-key-enter {
-    height: 2em;
-    line-height: 2em;
 }
 
 .fab-minkeyboard-key-space {
