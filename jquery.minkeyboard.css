@@ -13,9 +13,6 @@
   font-style: normal;
   font-size: 24px;  /* Preferred icon size */
   display: inline-block;
-  width: 1em;
-  height: 1em;
-  /*line-height: 1;*/
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
@@ -35,29 +32,25 @@
 }
 
 .fab-minkeyboard {
-	/*max-width: 400px;*/
-	position: absolute;
-        box-shadow: 0px 4px 18px 0px rgba(50, 50, 50, 0.89)
-}
-
-.fab-minkeyboard-numpad .fab-minkeyboard-0 {
-    min-width: 6.2em;
+    /*max-width: 400px;*/
+    position: absolute;
+    font-size: 3em;
+    box-shadow: 0px 4px 18px 0px rgba(50, 50, 50, 0.89);
 }
 
 .fab-minkeyboard-key {
-	display: table-cell;
-	display: inline-block;
-        min-width: 2em;
-        height: 2em;
-        line-height: 2em;
-	text-align: center;
-	cursor: pointer;
-	cursor: hand;
-        vertical-align: middle;
-        user-select: none; /* not supported yet, have to use prefix */
-                            /* otherwise, see .disableSelection() from jquery-ui/core */
-        -webkit-user-select: none;
-        -moz-user-select: none;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    text-align: center;
+    cursor: pointer;
+    cursor: hand;
+    box-sizing: border-box;
+    user-select: none; /* not supported yet, have to use prefix */
+                        /* otherwise, see .disableSelection() from jquery-ui/core */
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 .fab-minkeyboard-key:active {
@@ -66,17 +59,24 @@
     box-shadow: inset 0px 0px 10px 0px rgba(50, 50, 50, 0.20)
 }
 
-.fab-minkeyboard-backspace, .fab-minkeyboard-enter {
-    min-width: 4em;
+.fab-minkeyboard-key > *:first-child {
+    font-size: .4em;
+}
+
+.fab-minkeyboard-numpad .fab-minkeyboard-key-0 {
+    width: 3em;
+}
+
+.fab-minkeyboard-key-backspace, .fab-minkeyboard-key-enter {
+    width: 2em;
     float: right;
 }
 
-.fab-minkeyboard-enter {
-    height: 4.1em;
-    line-height: 4.1em; 
-    clear: right;
+.fab-minkeyboard-key-enter {
+    height: 2em;
+    line-height: 2em;
 }
 
-.fab-minkeyboard-space {
-    width: 8.3em;
+.fab-minkeyboard-key-space {
+    width: 4em;
 }

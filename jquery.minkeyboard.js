@@ -196,9 +196,13 @@
             return notfull;
         },
 
+        // returns jquery object représentant une key
+        // utiliser un wrapper autour des touches permet de laisser le user ajuster plus facilement la proportion des touches
+        // relativement aux autres. Ex: sur un numpad, on veut la touche 0 occuper l'espace de 3 touches
+        // on veut donc touche 0 = 300% de son parent, qui est défini par le wrapper et changeable par css
         _createKey: function (keyChar) {
             var keyName, key,
-                keyContent = keyChar,
+                keyContent = '<span>' + keyChar + '</span>',
                 handler = this._minkeyPrint;
 
             switch (keyChar) {
@@ -214,7 +218,7 @@
                     break;
                 case " ":
                     keyName = "space";
-                    keyContent = 'espace';
+                    keyContent = '<span>espace</span>';
                     handler = function (keyChar, isFull) {
                         this._minkeyPrint(' ', isFull);
                     };
@@ -229,9 +233,9 @@
                     keyName = keyChar;
             }
 
-            key = $("<span>")
+            key = $("<div>")
                 .addClass(this.widgetFullName + "-key  ui-state-default ui-corner-all")
-                .addClass(this.widgetFullName + "-" + keyName)
+                .addClass(this.widgetFullName + "-key-" + keyName)
                 .attr({
                      role: "button"
                 })
@@ -330,15 +334,13 @@
                     row3.append(key);
                 } else if ("WXCVBN ".indexOf(keyChar) !== -1) {
                     row4.append(key);
-        //               } else if (keyChar === "'" || keyChar === "-") {
-        //                   col2.append(key);
                 } else {
                     row5.append(key);
                 }
             });
             
             var digitsFound = keyChars.join("").match(/[0-9]+/);
-            if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special 
+            if (digitsFound && digitsFound[0].length === keyChars.length) { // numpad special: only digits
                 
                 row1.children(":gt(2):lt(3)").appendTo(row2);
                 row1.children(":gt(2):lt(3)").appendTo(row3);
