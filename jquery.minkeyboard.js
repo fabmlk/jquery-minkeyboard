@@ -132,8 +132,7 @@
             var value = this.element[0].value;
             
             if (selEnd === selStart) { // pas de text selected
-                selEnd = selStart;
-                selStart = selStart - 1;
+                selStart = selStart > 0 ? selStart - 1 : selStart;
             }
             this.element[0].value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
