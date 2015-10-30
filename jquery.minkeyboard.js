@@ -72,7 +72,7 @@
 
         _createKeyboard: function () {
             this.keyboard = $("<div>")
-                .addClass(this.widgetFullName + " ui-widget ui-corner-all ui-front")
+                .addClass(this.widgetFullName + " ui-widget ui-corner-all ui-front ui-widget-shadow")
                 .append($("<div class='ui-widget-header'>"))
                 .append($("<div class='ui-widget-content'>"))
                 .hide()
