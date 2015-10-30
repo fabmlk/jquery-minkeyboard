@@ -46,21 +46,26 @@
             },
             pattern: "", // setting manuel du pattern est possible aussi
             keys: null, // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
-            validate: null, // callback quand le user click sur valider/enter bouton
+            validate: null, // callback quand le user click sur valider/enter bouton. Le user peut preventDefault pour empêcher le default action
+                        // de passer au prochain input associé au widget
                         // passe en param object properties:
                         //  - index: la position du current input parmis tous ceux associés au widget
                         //  - targets: jQuery Collection des inputs associés au widget
+                        
             change: null, // callback event quand l'input change (utile car jquery on change listener ne marche pas pour programmatic update!
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
+                        
             mainpadLayout: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                             ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
                             ['W', 'X', 'C', 'V', 'B', 'N', "'", '-', ' ']],
+                        
             numpadLayout: [['7', '8', '9'],
                            ['4', '5', '6'],
                            ['1', '2', '3'],
                            ['0']],
+                       
             controlpadLayout: [["\x08", "\x0A"]]
         },
 
@@ -124,7 +129,7 @@
                 return;
             }
             this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
-            this.element[0].selectionStart = this.element[0].selectionEnd = selStart + 1; // set cursor after current position
+            this.element[0].selectionStart = this.element[0].selectionEnd = selStart + keyChar.length; // set cursor after current position
             
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
