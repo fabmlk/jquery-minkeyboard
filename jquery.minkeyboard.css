@@ -67,7 +67,6 @@
 
 .fab-minkeyboard-key:active {
     transform: translateY(1px);
-    background: #e6e6e6;
     box-shadow: inset 0px 0px 10px 0px rgba(50, 50, 50, 0.20)
 }
 
