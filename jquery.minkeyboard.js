@@ -55,14 +55,14 @@
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
             mainpadLayout: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-                     ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-                     ['W', 'X', 'C', 'V', 'B', 'N'],
-					 ["'", '-', ' ']],
+                            ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
+                            ['W', 'X', 'C', 'V', 'B', 'N'],
+                            ["'", '-', ' ']],
             numpadLayout: [['7', '8', '9'],
                            ['4', '5', '6'],
                            ['1', '2', '3'],
                            ['0']],
-			controlpadLayout: [["\x08"], ["\x0A"]]
+            controlpadLayout: [["\x08"], ["\x0A"]]
         },
 
 
@@ -330,37 +330,37 @@
         
         _buildKeyboardFromKeyChars: function (keyChars) {
             var self = this,
-				mainPad = $("<div>").addClass(this.widgetFullName + "-mainpad"),
-				numPad = $("<div>").addClass(this.widgetFullName + "-numpad"),
-				controlPad = $("<div>").addClass(this.widgetFullName + "-controlpad");
+                mainPad = $("<div>").addClass(this.widgetFullName + "-mainpad"),
+                numPad = $("<div>").addClass(this.widgetFullName + "-numpad"),
+                controlPad = $("<div>").addClass(this.widgetFullName + "-controlpad");
 
-			keyChars += "\x0A\x08";
+            keyChars += "\x0A\x08";
 
-			function convertCharRowToDomRow(charRow) {
-				return $.map(charRow, function (keyChar) {
-					if (keyChars.indexOf(keyChar) !== -1) {
-						return self._createKey(keyChar)[0]; // we need the dom element
-					}
-				});
-			}
+            function convertCharRowToDomRow(charRow) {
+                return $.map(charRow, function (keyChar) {
+                    if (keyChars.indexOf(keyChar) !== -1) {
+                        return self._createKey(keyChar)[0]; // we need the dom element
+                    }
+                });
+            }
 
-			$.each(this.options.mainpadLayout, function (idx, charRow) {
-				var domRow = convertCharRowToDomRow(charRow);
-				mainPad.append($("<div>").append($(domRow)));
-			});
+            $.each(this.options.mainpadLayout, function (idx, charRow) {
+                var domRow = convertCharRowToDomRow(charRow);
+                mainPad.append($("<div>").append($(domRow)));
+            });
 
-			$.each(this.options.numpadLayout, function (idx, charRow) {
-				var domRow = convertCharRowToDomRow(charRow);
-				numPad.append($("<div>").append($(domRow)));
-			});
+            $.each(this.options.numpadLayout, function (idx, charRow) {
+                var domRow = convertCharRowToDomRow(charRow);
+                numPad.append($("<div>").append($(domRow)));
+            });
 
-			$.each(this.options.controlpadLayout, function (idx, charRow) {
-				var domRow = convertCharRowToDomRow(charRow);
-				controlPad.append($("<div>").append($(domRow)));
-			});
+            $.each(this.options.controlpadLayout, function (idx, charRow) {
+                var domRow = convertCharRowToDomRow(charRow);
+                controlPad.append($("<div>").append($(domRow)));
+            });
 
-			this.keyboard.append(mainPad).append(numPad).append(controlPad);
-		},            
+            this.keyboard.append(mainPad).append(numPad).append(controlPad);
+        },            
 
         // _destroy() est appele automatiquement quand destroy() est appele explicitement (aka par le user via .minkeyboard("destroy"))
         // Ce code s'execute apres le built-in destroy()
