@@ -31,22 +31,26 @@
   font-feature-settings: 'liga';
 }
 
-.fab-minkeyboard {
+.ui-widget.fab-minkeyboard {
     /*max-width: 400px;*/
     position: absolute;
     font-size: 3em;
     box-shadow: 0px 4px 18px 0px rgba(50, 50, 50, 0.89);
 }
 
-.fab-minkeyboard > div {
-    display: inline-block;
+.fab-minkeyboard .ui-widget-content > .fab-minkeyboard-pad {
+    float: left;
     line-height: 1em;
+}
+
+.fab-minkeyboard .ui-widget-header {
+    float: right;
 }
 
 .fab-minkeyboard-key {
     display: table-cell;
     width: 1em;
-/*    line-height: 1em; */
+    line-height: 1em; 
     text-align: center;
     cursor: pointer;
     cursor: hand;
@@ -63,23 +67,15 @@
     box-shadow: inset 0px 0px 10px 0px rgba(50, 50, 50, 0.20)
 }
 
-.fab-minkeyboard-key > *, .blank > * {
+.fab-minkeyboard-key > * {
     display: block;
-    font-size: .4em;
+    font-size: 1rem;
 }
 
 .fab-minkeyboard-numpad .fab-minkeyboard-key-0 {
     width: 3em;
 }
 
-.fab-minkeyboard-key-backspace, .fab-minkeyboard-key-enter {
+.fab-minkeyboard-key-enter, .fab-minkeyboard-key-space {
     width: 2em;
-}
-
-.fab-minkeyboard-key-enter {
-    line-height: 3.10em;
-}
-
-.fab-minkeyboard-key-space {
-    width: 4em;
 }
