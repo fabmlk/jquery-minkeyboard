@@ -18,8 +18,6 @@
 		factory( jQuery );
 	}
 }(function( $ ) {
-    var _keypad = "AZERTYUIOP789QSDFGHJKLM456WXCVBN '-1230";
-
     // tout attribut commencant par '_' est automatiquement ignoree et non accessible via $.widget('minkeyboard', 'mymethode')
     // (mais toujours evocable directement via trick data() ou instance(): voir ci-dessous)
     // toutes les methodes heritees ici viennent en fait d'un base prototype $.Widget.prototype.
@@ -53,7 +51,7 @@
                 collision: "flipfit"
             },
             pattern: "", // setting manuel du pattern est possible aussi
-            keys: null, // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
+            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN '-1230", // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
             validate: null, // callback quand le user click sur valider/enter bouton. Le user peut preventDefault pour empêcher le default action
                         // de passer au prochain input associé au widget
                         // passe en param object properties:
@@ -65,16 +63,18 @@
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
                         
-            mainpadLayout: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+			layout: {
+				mainpad: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                             ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
                             ['W', 'X', 'C', 'V', 'B', 'N', "'", '-', ' ']],
                         
-            numpadLayout: [['7', '8', '9'],
+				numpad: [['7', '8', '9'],
                            ['4', '5', '6'],
                            ['1', '2', '3'],
                            ['0']],
                        
-            controlpadLayout: [["\x08", "\x0A"]]
+				controlpad: [["\x08", "\x0A"]]
+			}
 
 			/* heritees/fournies par le widget factory
 			disabled: true/false aussi mappe a built-in functions "disable"/"enable"
@@ -253,6 +253,8 @@
                 keyContent = '<span>' + keyChar + '</span>',
                 handler = this._minkeyPrint;
 
+			keyChar = keyChar.toString(); // make sure we are using a string
+
             switch (keyChar) {
                 case "\x0A":
                     keyName = "enter";
@@ -323,17 +325,10 @@
 
             this.element.addClass(this.widgetFullName + '-target');
 
-            // ordre de priorité pour setter les keys:
-            // 1- options.keys
-            // 2- options.pattern
-            // 3- element attribute "pattern"
-            if (this.options.keys) {
-                this._buildKeyboardFromKeyChars(this.options.keys);
-            } else {
-                 // si l'element n'as pas de pattern, on lui autorise tout le keypad
-                 this.options.pattern = this.options.pattern || this.element.attr("pattern") || '[' + _keypad + ']';
-                 this._buildKeyboardFromPattern(this.options.pattern);
-            }
+			// si l'element n'as pas de pattern, on lui autorise tout le keypad
+            this.options.pattern = this.options.pattern || this.element.attr("pattern") || '[' + this.options.keys + ']';
+            this._buildKeyboardFromPattern(this.options.pattern);
+
             // on ajoute au current element la classe "minkeyboard" (this.widgetFullName depuis jquery ui 1.9, avant on utilisant this.widgetBaseClass)
             //this.element.addClass(this.widgetFullName || this.widgetBaseClass);
 
@@ -363,43 +358,41 @@
             // version 0.1.0: on garde seulement ce qui est dans le 1er crochet
             pattern = pattern.replace(/.*(\[.+?\]).*/, "$1");
             regex = new RegExp(pattern, 'g');
-            keyChars = _keypad.match(regex); // on obtient un array des keys necessaires matchant le pattern
+            keyChars = this.options.keys.match(regex); // on obtient un array des keys necessaires matchant le pattern
             this._buildKeyboardFromKeyChars(keyChars);
         },
         
+
+		/* param keyChars can be string of single-characters or array */
         _buildKeyboardFromKeyChars: function (keyChars) {
             var self = this,
-                mainPad = $("<div>").addClass(this.widgetFullName + "-pad " + this.widgetFullName + "-mainpad"),
-                numPad = $("<div>").addClass(this.widgetFullName + "-pad " + this.widgetFullName + "-numpad"),
-                controlPad = $("<div>").addClass(this.widgetFullName + "-pad " + this.widgetFullName + "-controlpad");
+				padmap = {};
 
-            keyChars += "\x0A\x08";
+            $.isArray(keyChars) ? keyChars.push("\x0A", "\x08") : keyChars += "\x0A\x08";
 
-            function convertCharRowToDomRow(keyRow) {
-                return $.map(keyRow, function (keyChar) {
-                    if (keyChars.indexOf(keyChar) !== -1) {
-                        return self._createKey(keyChar)[0]; // we need the dom element
-                    }
-                });
-            }
+			$.each(this.options.layout, function (pad, layout) {
+				$.each(layout, function (idx, keyRow) {
+					// we build an array of dom elements first because jquery supports building collection object from
+					// array of dom elements, but not from array of jquery elements!
+					var domRow = $.map(keyRow, function (keyChar) {
+						if (keyChars.indexOf(keyChar) !== -1) {
+							return self._createKey(keyChar)[0]; // the DOM element
+						}
+					});
+					if (domRow.length > 0) {
+						padmap[pad] = padmap[pad] || $("<div>").addClass(self.widgetFullName + "-pad " + self.widgetFullName + "-" + pad);
+						padmap[pad].append($(domRow).wrapAll("<div>").parent()); // wrap*() returns inner element; call parent
+					}
+				});
+			});
 
-            $.each(this.options.mainpadLayout, function (idx, keyRow) {
-                var domRow = convertCharRowToDomRow(keyRow);
-                mainPad.append($("<div>").append($(domRow)));
-            });
+			$.each(padmap, function (pad, content) {
+				var destination = (pad === "controlpad" ?
+									self.keyboard.find(".ui-widget-header")
+								   :self.keyboard.find(".ui-widget-content"));
+				destination.append(content);
+			});
 
-            $.each(this.options.numpadLayout, function (idx, keyRow) {
-                var domRow = convertCharRowToDomRow(keyRow);
-                numPad.append($("<div>").append($(domRow)));
-            });
-            
-            $.each(this.options.controlpadLayout, function (idx, keyRow) {
-                var domRow = convertCharRowToDomRow(keyRow);
-                controlPad.append($("<div>").append($(domRow)));
-            });
-
-            this.keyboard.find(".ui-widget-header").append(controlPad);
-            this.keyboard.find(".ui-widget-content").append(mainPad).append(numPad);//.append(controlPad);
         },            
 
         // _destroy() est appele automatiquement quand destroy() est appele explicitement (aka par le user via .minkeyboard("destroy"))
@@ -419,19 +412,24 @@
         // (fonctionne comme attr() ou css() pour getter/setter)
         // si on a besoin de comparer la value courante de l'option on peut utiliser this.options[key]
         _setOption: function (key, value) {
-            this._super(key, value);
             switch(key) {
                 case "pattern":
-                    this.keyboard.empty();
+                    this.keyboard.children().empty();
+					this._super(key, value);
                     this._buildKeyboardFromPattern(value);
                     break;
                 case "keys":
-				case "mainpadLayout":
-				case "numpadLayout":
-				case "controlpadLayout":
-                    this.keyboard.empty();
+                    this.keyboard.children().empty();
+					this._super(key, value);
                     this._buildKeyboardFromKeyChars(value);
+					break;
+				case "layout":
+					$.extend(this.options.layout, value);
+                    this.keyboard.children().empty();
+					this._buildKeyboardFromKeyChars(this.options.keys);
                     break;
+				default:
+					this._super(key, value);
             }
         },
     };
