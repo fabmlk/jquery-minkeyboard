@@ -371,6 +371,9 @@
             $.isArray(keyChars) ? keyChars.push("\x0A", "\x08") : keyChars += "\x0A\x08";
 
 			$.each(this.options.layout, function (pad, layout) {
+				if (!layout) {
+					return;
+				}
 				$.each(layout, function (idx, keyRow) {
 					// we build an array of dom elements first because jquery supports building collection object from
 					// array of dom elements, but not from array of jquery elements!
