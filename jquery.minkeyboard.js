@@ -26,6 +26,14 @@
     var minkeyboardOverrides = {
         // on set les default options
         // a la creation, widget framework va copier le widget options attribut dans jquery plugin options instance (qui sera accessible via this directement)
+		// Widget factory aussi map default options au prototype du widget, e.g:
+		// $.fab.minkeyboard.prototype.options
+		// Ainsi, un client peut overrider les default options de tous les widgets via:
+		// $.extend($.fab.minkeyboard.prototype.options, {someprop: someval...});
+		// Parfois on verra:
+		// $.extend($.fab.minkeyboard.options, {...})
+		// Ceci est possible si on decide de copier les defaults options dans le widget directement:
+		//	$.fab.minkeyboard.options = $.fab.minkeyboard.prototype.options;
         options: {
             appendTo: null, // jquery selector ou montrer le keyboard, null pour montrer pres de l'input
                                             // ne doit pas etre resetter dynamiquement! (ceci est attendu, voir jquery ui dialog widget)
@@ -67,8 +75,33 @@
                            ['0']],
                        
             controlpadLayout: [["\x08", "\x0A"]]
+
+			/* heritees/fournies par le widget factory
+			disabled: true/false aussi mappe a built-in functions "disable"/"enable"
+					 quand disabled true, la classe namespace-plugin-disabled + ui-state-disabled + aria-disabled est ajoute sur le main element (this.element)
+			create: event triggered automatiquement pour tout widget apres l'appel a _create(), tout client peut donc ajouter une action a la creation via:
+			$('input').somewidget({create: function(event, ui) { some action }});
+		   */
         },
 
+		/* herites/fournies par widget factory
+		widget: method qui retourne le main element du widget par defaut (this.element). Utilisable par:
+		$('selector').somewidget('widget'); // retourne this.element
+	   On peut l'override pour retourner autre chose, par ex dialog widget retourne le <div> wrapper
+		enable/disable: voir option "disabled"
+
+		Metadata plugin: plus inclus depuis 1.10, il permettait de specifier les options du widget directement dans le html:
+		<input type="text" class="{someoption: {someprop: somevalue}}">
+		On peut le reactiver en reinstallant le plugin et utiliser:
+		 // si metadata plugin est supporte, _getCreateOptions() est present donc version < 1.10
+		 	if ($.Widget.prototype._getCreateOptions === $.noop) {
+				$.extend(minkeyboardOverrides, {
+					_getCreateOptions: function() {
+						return $.metadata && $.metadata.get(this.element[0])[this.widgetName];
+					}
+				});
+			}
+		*/
 
         _createKeyboard: function () {
             this.keyboard = $("<div>")
@@ -393,6 +426,9 @@
                     this._buildKeyboardFromPattern(value);
                     break;
                 case "keys":
+				case "mainpadLayout":
+				case "numpadLayout":
+				case "controlpadLayout":
                     this.keyboard.empty();
                     this._buildKeyboardFromKeyChars(value);
                     break;
