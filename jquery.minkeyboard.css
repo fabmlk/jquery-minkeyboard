@@ -55,6 +55,10 @@
     padding: 3px;
 }
 
+.fab-minkeyboard-mainpad + .fab-minkeyboard-numpad {
+    margin-left: 10px;
+}
+
 .fab-minkeyboard-key {
     display: table-cell;
     width: 1em;
