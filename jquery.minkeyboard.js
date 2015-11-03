@@ -45,7 +45,7 @@
         options: {
             appendTo: null, // jquery selector ou montrer le keyboard, null pour montrer pres de l'input
                                             // ne doit pas etre resetter dynamiquement! (ceci est attendu, voir jquery ui dialog widget)
-            full: null, // callback quand max ou sinon maxlength est atteint, recoit en param le triggering event et object avec attribut patternMismatch indiquant si le pattern est valid ou non
+            full: null, // callback quand size ou sinon maxlength est atteint, recoit en param le triggering event et object avec attribut patternMismatch indiquant si le pattern est valid ou non
                         // le nom "full" est le nom de l'event qu'on va devoir trigger via _trigger('full')
                         // en interne jquery va creer un event portant le nom du widget concatene, i.e le user devra listen par:
                         // $(el).on('minkeyboardfull',...)
@@ -233,7 +233,7 @@
         _minkeyPress: function () {
             var notfull = true,
                 valLength = this.element.val().length,
-                max = this.element.attr("max") || this.element.attr("maxlength") || valLength + 1;
+                max = this.element.attr("maxlength") || this.element.attr("size") || valLength + 1;
 
             if (valLength >= max) {
                 // _trigger() est fourni par widget factory et permet de trigger un custom event
