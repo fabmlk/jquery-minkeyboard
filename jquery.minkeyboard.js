@@ -63,45 +63,45 @@
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
                         
-			layout: {
-				mainpad: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-                            ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-                            ['W', 'X', 'C', 'V', 'B', 'N', "'", '-', ' ']],
-                        
-				numpad: [['7', '8', '9'],
-                           ['4', '5', '6'],
-                           ['1', '2', '3'],
-                           ['0']],
-                       
-				controlpad: [["\x08", "\x0A"]]
-			}
+            layout: {
+                mainpad: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                          ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
+                          ['W', 'X', 'C', 'V', 'B', 'N', "'", '-', ' ']],
 
-			/* heritees/fournies par le widget factory
-			disabled: true/false aussi mappe a built-in functions "disable"/"enable"
-					 quand disabled true, la classe namespace-plugin-disabled + ui-state-disabled + aria-disabled est ajoute sur le main element (this.element)
-			create: event triggered automatiquement pour tout widget apres l'appel a _create(), tout client peut donc ajouter une action a la creation via:
-			$('input').somewidget({create: function(event, ui) { some action }});
-		   */
+                numpad: [['7', '8', '9'],
+                         ['4', '5', '6'],
+                         ['1', '2', '3'],
+                         ['0']],
+
+                controlpad: [["\x08", "\x0A"]]
+            }
+
+            /* heritees/fournies par le widget factory
+            disabled: true/false aussi mappe a built-in functions "disable"/"enable"
+                             quand disabled true, la classe namespace-plugin-disabled + ui-state-disabled + aria-disabled est ajoute sur le main element (this.element)
+            create: event triggered automatiquement pour tout widget apres l'appel a _create(), tout client peut donc ajouter une action a la creation via:
+            $('input').somewidget({create: function(event, ui) { some action }});
+       */
         },
 
-		/* herites/fournies par widget factory
-		widget: method qui retourne le main element du widget par defaut (this.element). Utilisable par:
-		$('selector').somewidget('widget'); // retourne this.element
-	   On peut l'override pour retourner autre chose, par ex dialog widget retourne le <div> wrapper
-		enable/disable: voir option "disabled"
+        /* herites/fournies par widget factory
+        widget: method qui retourne le main element du widget par defaut (this.element). Utilisable par:
+        $('selector').somewidget('widget'); // retourne this.element
+   On peut l'override pour retourner autre chose, par ex dialog widget retourne le <div> wrapper
+        enable/disable: voir option "disabled"
 
-		Metadata plugin: plus inclus depuis 1.10, il permettait de specifier les options du widget directement dans le html:
-		<input type="text" class="{someoption: {someprop: somevalue}}">
-		On peut le reactiver en reinstallant le plugin et utiliser:
-		 // si metadata plugin est supporte, _getCreateOptions() est present donc version < 1.10
-		 	if ($.Widget.prototype._getCreateOptions === $.noop) {
-				$.extend(minkeyboardOverrides, {
-					_getCreateOptions: function() {
-						return $.metadata && $.metadata.get(this.element[0])[this.widgetName];
-					}
-				});
-			}
-		*/
+        Metadata plugin: plus inclus depuis 1.10, il permettait de specifier les options du widget directement dans le html:
+        <input type="text" class="{someoption: {someprop: somevalue}}">
+        On peut le reactiver en reinstallant le plugin et utiliser:
+         // si metadata plugin est supporte, _getCreateOptions() est present donc version < 1.10
+                if ($.Widget.prototype._getCreateOptions === $.noop) {
+                        $.extend(minkeyboardOverrides, {
+                                _getCreateOptions: function() {
+                                        return $.metadata && $.metadata.get(this.element[0])[this.widgetName];
+                                }
+                        });
+                }
+        */
 
         _createKeyboard: function () {
             this.keyboard = $("<div>")
@@ -253,18 +253,18 @@
                 keyContent = '<span>' + keyChar + '</span>',
                 handler = this._minkeyPrint;
 
-			keyChar = keyChar.toString(); // make sure we are using a string
+            keyChar = keyChar.toString(); // make sure we are using a string
 
             switch (keyChar) {
                 case "\x0A":
                     keyName = "enter";
                     handler = this._minkeyValidate;
-                    keyContent = '<i class="material-icons">check</i>';
+                    keyContent = '<span><i class="material-icons">check</i> Valider</span>';
                     break;
                 case "\x08":
                     keyName = "backspace";
                     handler = this._minkeySuppr;
-                    keyContent = '<i class="material-icons">backspace</i>';
+                    keyContent = '<span><i class="material-icons">backspace</i> Effacer</span>';
                     break;
                 case " ":
                     keyName = "space";
@@ -366,36 +366,33 @@
 		/* param keyChars can be string of single-characters or array */
         _buildKeyboardFromKeyChars: function (keyChars) {
             var self = this,
-				padmap = {};
+                padmap = {};
 
             $.isArray(keyChars) ? keyChars.push("\x0A", "\x08") : keyChars += "\x0A\x08";
 
-			$.each(this.options.layout, function (pad, layout) {
-				if (!layout) {
-					return;
-				}
-				$.each(layout, function (idx, keyRow) {
-					// we build an array of dom elements first because jquery supports building collection object from
-					// array of dom elements, but not from array of jquery elements!
-					var domRow = $.map(keyRow, function (keyChar) {
-						if (keyChars.indexOf(keyChar) !== -1) {
-							return self._createKey(keyChar)[0]; // the DOM element
-						}
-					});
-					if (domRow.length > 0) {
-						padmap[pad] = padmap[pad] || $("<div>").addClass(self.widgetFullName + "-pad " + self.widgetFullName + "-" + pad);
-						padmap[pad].append($(domRow).wrapAll("<div>").parent()); // wrap*() returns inner element; call parent
-					}
-				});
-			});
+            $.each(this.options.layout, function (pad, layout) {
+                if (!layout) {
+                    return;
+                }
+                $.each(layout, function (idx, keyRow) {
+                    // we build an array of dom elements first because jquery supports building collection object from
+                    // array of dom elements, but not from array of jquery elements!
+                    var domRow = $.map(keyRow, function (keyChar) {
+                        if (keyChars.indexOf(keyChar) !== -1) {
+                            return self._createKey(keyChar)[0]; // the DOM element
+                        }
+                    });
+                    if (domRow.length > 0) {
+                        padmap[pad] = padmap[pad] || $("<div>").addClass(self.widgetFullName + "-pad " + self.widgetFullName + "-" + pad);
+                        padmap[pad].append($(domRow).wrapAll("<div>").parent()); // wrap*() returns inner element; call parent
+                    }
+                });
+            });
 
-			$.each(padmap, function (pad, content) {
-				var destination = (pad === "controlpad" ?
-									self.keyboard.find(".ui-widget-header")
-								   :self.keyboard.find(".ui-widget-content"));
-				destination.append(content);
-			});
-
+            $.each(padmap, function (pad, content) {
+                var destination = (pad === "controlpad" ? self.keyboard.find(".ui-widget-header") : self.keyboard.find(".ui-widget-content"));
+                destination.append(content);
+            });
         },            
 
         // _destroy() est appele automatiquement quand destroy() est appele explicitement (aka par le user via .minkeyboard("destroy"))
@@ -407,7 +404,7 @@
         //	- unbind all events ajoutes par _bind() ou _on()
 
         _destroy: function () { 
-                this.keyboard.remove();
+            this.keyboard.remove();
         },
 
         // Appelé par _setOptions() automatiquement pour chaque option settée
@@ -418,21 +415,21 @@
             switch(key) {
                 case "pattern":
                     this.keyboard.children().empty();
-					this._super(key, value);
+                    this._super(key, value);
                     this._buildKeyboardFromPattern(value);
                     break;
                 case "keys":
                     this.keyboard.children().empty();
-					this._super(key, value);
+                    this._super(key, value);
                     this._buildKeyboardFromKeyChars(value);
-					break;
-				case "layout":
-					$.extend(this.options.layout, value);
-                    this.keyboard.children().empty();
-					this._buildKeyboardFromKeyChars(this.options.keys);
                     break;
-				default:
-					this._super(key, value);
+                case "layout":
+                    $.extend(this.options.layout, value);
+                    this.keyboard.children().empty();
+                    this._buildKeyboardFromKeyChars(this.options.keys);
+                    break;
+                default:
+                    this._super(key, value);
             }
         },
     };

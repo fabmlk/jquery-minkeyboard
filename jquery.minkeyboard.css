@@ -83,6 +83,10 @@
     font-size: 1rem;
 }
 
+.fab-minkeyboard-key .material-icons {
+    vertical-align: bottom;
+}
+
 .fab-minkeyboard-numpad .fab-minkeyboard-key-0 {
     width: 3em;
 }
