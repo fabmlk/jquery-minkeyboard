@@ -1,21 +1,19 @@
+<!DOCTYPE html>
 <html>
 	<head>
+                <meta charset="utf-8">
 		<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 		<link rel="stylesheet" href="jquery.minkeyboard.css">
 	</head>
 	<body>
 		<input type="text" pattern="[A-Z]*" tabindex="1" title="je suis un input">
-		<input type="text" pattern="[0-9]+" tabindex="2" title="je suis un 2e input">
+		<input type="text" pattern="[0-9]+" tabindex="2" maxlength="3" title="je suis un 2e input">
 		<input type="text" tabindex="3" title="je suis un 3e input">
 		<div style="background-color:red">toto</div>
 		<div style="background-color:blue">max</div>
 		<span>toto</span><span>max</span>
-		<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
-		<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-		<script src="jquery.minkeyboard.js"></script>
-		<script>
-		//	$("input").tooltip();
-			$("input").minkeyboard();
-		</script>
+<!--		<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+		<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>-->
+		<script src="bundle.js"></script>
 	</body>
 </html>
