@@ -269,12 +269,12 @@
                 case "\x0A":
                     keyName = "enter";
                     handler = this._minkeyValidate;
-                    keyContent = '<span>' + checkIcon + 'Valider</span>';
+                    keyContent = '<span>' + checkIcon + ' Valider</span>';
                     break;
                 case "\x08":
                     keyName = "backspace";
                     handler = this._minkeySuppr;
-                    keyContent = '<span>' + backspaceIcon + 'Effacer</span>';
+                    keyContent = '<span>' + backspaceIcon + ' Effacer</span>';
                     break;
                 case " ":
                     keyName = "space";

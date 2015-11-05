@@ -51,13 +51,13 @@
 }
 
 .fab-minkeyboard-key svg {
-    vertical-align: bottom;
+    vertical-align: sub;
 }
 
 .fab-minkeyboard-numpad .fab-minkeyboard-key-0 {
     width: 3em;
 }
 
-.fab-minkeyboard-key-enter, .fab-minkeyboard-key-space {
+.fab-minkeyboard-key-enter, .fab-minkeyboard-key-space, .fab-minkeyboard-key-backspace {
     width: 2em;
 }
