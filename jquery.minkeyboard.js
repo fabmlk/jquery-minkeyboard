@@ -72,7 +72,8 @@
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
-                        
+            open: null,
+			close: null,
             layout: {
                 // http://www.decodeunicode.org/en/combining_diacritical_marks
                 // https://fr.wikipedia.org/wiki/Normalisation_Unicode
@@ -157,7 +158,9 @@
                     // (par ex click sur span icone contenue dans une span key)
                     && !$(event.target).closest("." + this.widgetFullName + "-key").length)
                 || (event.keyCode || event.which) === $.ui.keyCode.TAB ) {
-                this._hide(this.keyboard, this.options.hide);
+				if (this._trigger("close") !== false) {
+                	this._hide(this.keyboard, this.options.hide);
+				}
             }
         },
 
@@ -165,6 +168,9 @@
         open: function (event) {
             // WARNING: element doit etre visible avant d'etre positionne!
             // (https://forum.jquery.com/topic/position-keeps-adding-original-left-and-top-to-current-values-in-ie-8)
+			if (this._trigger("open") === false) {
+				return;
+			}
             this._show(this.keyboard, this.options.show);
             if (!this.options.appendTo) { // par defaut, positionne pres de l'input
                 this.keyboard.position($.extend({
