@@ -72,7 +72,7 @@
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
-            open: null, // callback events quand on open/close le keyboard. Peut etre prevented.
+            open: null, // callback events quand le keyboard est open/close
 			close: null,
             layout: {
                 // http://www.decodeunicode.org/en/combining_diacritical_marks
@@ -158,9 +158,8 @@
                     // (par ex click sur span icone contenue dans une span key)
                     && !$(event.target).closest("." + this.widgetFullName + "-key").length)
                 || (event.keyCode || event.which) === $.ui.keyCode.TAB ) {
-				if (this._trigger("close") !== false) {
-                	this._hide(this.keyboard, this.options.hide);
-				}
+                this._hide(this.keyboard, this.options.hide);
+				this._trigger("close");
             }
         },
 
@@ -168,15 +167,13 @@
         open: function (event) {
             // WARNING: element doit etre visible avant d'etre positionne!
             // (https://forum.jquery.com/topic/position-keeps-adding-original-left-and-top-to-current-values-in-ie-8)
-			if (this._trigger("open") === false) {
-				return;
-			}
             this._show(this.keyboard, this.options.show);
             if (!this.options.appendTo) { // par defaut, positionne pres de l'input
                 this.keyboard.position($.extend({
                         of: (event && event.target) || this.element
                 }, this.options.position));
             }
+			this._trigger("open");
         },
 
         // print character at cursor current position (replace text if selected)
