@@ -72,7 +72,7 @@
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
-            open: null,
+            open: null, // callback events quand on open/close le keyboard. Peut etre prevented.
 			close: null,
             layout: {
                 // http://www.decodeunicode.org/en/combining_diacritical_marks
