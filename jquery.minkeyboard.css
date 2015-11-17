@@ -4,6 +4,10 @@
     box-shadow: 0px 4px 18px 0px rgba(50, 50, 50, 0.89);
 }
 
+.ui-widget.fab-minkeyboard.fab-minkeyboard-fixed {
+    position: relative;
+}
+
 .fab-minkeyboard .ui-widget-content {
     display: table;
     margin: auto;

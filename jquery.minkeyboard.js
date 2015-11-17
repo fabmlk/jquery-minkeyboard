@@ -123,6 +123,10 @@
                      role: "grid"
                 })
                 .appendTo(this.options.appendTo || this.document[0].body);
+        
+            if (this.options.appendTo) {
+                this.keyboard.addClass("fab-minkeyboard-fixed");
+            }
             
             // we don't want to trigger hiding triggered from click to document
             // click sur keys bubble up sur keyboard: on cancel
