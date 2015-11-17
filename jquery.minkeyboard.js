@@ -160,6 +160,10 @@
                 }, this.options.position));
             }
         },
+        
+        _getTargets: function () {
+            return $("." + this.widgetFullName + "-target:focusable")
+        },
 
         // print character at cursor current position (replace text if selected)
         // trigger change event if value changed
@@ -212,7 +216,7 @@
             // On pourrait utiliser jquery :visible:enabled selector mais jquery ui core fournit :focusable directement
             // (différent de :tabbable par le fait que tab index < 0 est focusable mais pas tabbable)
             // Note: focusable semble respecter hidden input, pas tabbable! bug ?
-            var targets = $("." + this.widgetFullName + "-target:focusable"),
+            var targets = this._getTargets(),
                 targetIndex = targets.index(this.element),
                 nextTargetIndex = targetIndex + 1;	
             
@@ -244,8 +248,11 @@
                 // Le 2e arg est le jquery event a l'origine. En passant null, on laisse jQuery creer tout seul un custom event object dont le type 'minkeyboard' est le nom du plugin et le name la concatenation 'minkeyboardfull'
                 //	Remarque: si le nom du plugin === event name (ex 'drag' plugin pour 'drag' event), le name n'est pas double en 'dragdrag' mais juste 'drag'
                 // Le callback recevra 1st arg le triggering event, 2nd arg custom ui object, et this fera référence à this.element
+                var targets = this._getTargets();
                 this._trigger("full", null, {
-                     patternMismatch: this.element[0].validity.patternMismatch
+                     patternMismatch: this.element[0].validity.patternMismatch,
+                     targets: targets,
+                     index: targets.index(this.element)
                 });
                 notfull = false;
             }
