@@ -235,6 +235,9 @@
 
         // returns boolean indiquant si event canceled ou non
         _minkeyPress: function (keyName, keyChar) {
+            var targets = this._getTargets(),
+                targetIndex = targets.index(this.element);
+        
             // _trigger() est fourni par widget factory et permet de trigger un custom event
             // keypress a ete defini en option pour que le user puisse listen via un callback qui sera evoque ici
             // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
@@ -245,7 +248,9 @@
             // Le callback recevra 1st arg le triggering event, 2nd arg custom ui object, et this fera référence à this.element
             var canceled = this._trigger("keypress", null, {
                 name: keyName,
-                char: keyChar
+                char: keyChar,
+                targets: targets,
+                index: targetIndex
             });
             if (canceled !== false) {
                 // redonne le focus au input
