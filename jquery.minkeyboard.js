@@ -45,10 +45,10 @@
         options: {
             appendTo: null, // jquery selector ou montrer le keyboard, null pour montrer pres de l'input
                                             // ne doit pas etre resetter dynamiquement! (ceci est attendu, voir jquery ui dialog widget)
-            full: null, // callback quand size ou sinon maxlength est atteint, recoit en param le triggering event et object avec attribut patternMismatch indiquant si le pattern est valid ou non
-                        // le nom "full" est le nom de l'event qu'on va devoir trigger via _trigger('full')
+            keypress: null, // callback quand un key du keyboard est pressed
+                        // le nom "keypress" est le nom de l'event qu'on va devoir trigger via _trigger('keypress')
                         // en interne jquery va creer un event portant le nom du widget concatene, i.e le user devra listen par:
-                        // $(el).on('minkeyboardfull',...)
+                        // $(el).on('minkeyboardkeypress',...)
                         // "All widgets have a create event which is triggered upon instantiation"
                         // passe en param object avec property patternMismatch indiquant si il y a patternmismatch 
 
@@ -233,32 +233,25 @@
             }
         },
 
-        // returns false si maxlength atteint, true sinon
-        _minkeyPress: function () {
-            var notfull = true,
-                valLength = this.element.val().length,
-                max = this.element.attr("maxlength") || this.element.attr("max") || valLength + 1;
-
-            if (valLength >= max) {
-                // _trigger() est fourni par widget factory et permet de trigger un custom event
-                // full a ete defini en option pour que le user puisse listen via un callback qui sera evoque ici
-                // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
-                // automatiquement annulee si le user intercepte via preventDefault (ou return false)
-                // Dans ce cas _trigger() retourne false pour nous l'indiquer si besoin de traiter ce cas etc...
-                // Le 2e arg est le jquery event a l'origine. En passant null, on laisse jQuery creer tout seul un custom event object dont le type 'minkeyboard' est le nom du plugin et le name la concatenation 'minkeyboardfull'
-                //	Remarque: si le nom du plugin === event name (ex 'drag' plugin pour 'drag' event), le name n'est pas double en 'dragdrag' mais juste 'drag'
-                // Le callback recevra 1st arg le triggering event, 2nd arg custom ui object, et this fera référence à this.element
-                var targets = this._getTargets();
-                this._trigger("full", null, {
-                     patternMismatch: this.element[0].validity.patternMismatch,
-                     targets: targets,
-                     index: targets.index(this.element)
-                });
-                notfull = false;
+        // returns boolean indiquant si event canceled ou non
+        _minkeyPress: function (keyName, keyChar) {
+            // _trigger() est fourni par widget factory et permet de trigger un custom event
+            // keypress a ete defini en option pour que le user puisse listen via un callback qui sera evoque ici
+            // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
+            // automatiquement annulee si le user intercepte via preventDefault (ou return false)
+            // Dans ce cas _trigger() retourne false pour nous l'indiquer si besoin de traiter ce cas etc...
+            // Le 2e arg est le jquery event a l'origine. En passant null, on laisse jQuery creer tout seul un custom event object dont le type 'minkeyboard' est le nom du plugin et le name la concatenation 'minkeyboardfull'
+            //	Remarque: si le nom du plugin === event name (ex 'drag' plugin pour 'drag' event), le name n'est pas double en 'dragdrag' mais juste 'drag'
+            // Le callback recevra 1st arg le triggering event, 2nd arg custom ui object, et this fera référence à this.element
+            var canceled = this._trigger("keypress", null, {
+                name: keyName,
+                char: keyChar
+            });
+            if (canceled !== false) {
+                // redonne le focus au input
+                this.element.focus();
             }
-            // redonne le focus au input
-            this.element.focus();
-            return notfull;
+            return canceled;
         },
 
         // returns jquery object représentant une key
@@ -312,8 +305,12 @@
 
             this._on(key, {
                 click: function () {
-                    var isFull = (this._minkeyPress() === false);
-                    handler.call(this, keyChar, isFull);
+                    var valLength = this.element.val().length,
+                        max = this.element.attr("maxlength") || this.element.attr("max") || valLength + 1;
+                
+                    if (this._minkeyPress(keyName, keyChar) !== false) {
+                        handler.call(this, keyChar, valLength >= max);
+                    }
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
                      * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
                      * On préferera utiliser css :active pour ça! */
