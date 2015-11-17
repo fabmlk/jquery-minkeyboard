@@ -160,14 +160,10 @@
                 }, this.options.position));
             }
         },
-        
-        _getTargets: function () {
-            return $("." + this.widgetFullName + "-target:focusable")
-        },
 
         // print character at cursor current position (replace text if selected)
         // trigger change event if value changed
-        _minkeyPrint: function (keyChar, isFull) {
+        _minkeyPrint: function (targets, keyChar, isFull) {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
             var value = this.element[0].value;
@@ -181,14 +177,16 @@
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
                     old: value,
-                    new: this.element[0].value
+                    new: this.element[0].value,
+                    targets: targets,
+                    index: targets.index(this.element)
                 });
             }
         },
 
         // delete text selected or character before current selection
         // trigger change event if value changed
-        _minkeySuppr: function () {
+        _minkeySuppr: function (targets) {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
             var value = this.element[0].value;
@@ -202,22 +200,23 @@
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
                     old: value,
-                    new: this.element[0].value
+                    new: this.element[0].value,
+                    targets: targets,
+                    index: targets.index(this.element)
                 });
             }
         },
 
         // par défaut, quand on appuie sur valider, on focus le prochain élément ayant minkeyboard widget
 		// si le dernier element est atteint, on trigger blur event
-        _minkeyValidate: function () {
+        _minkeyValidate: function (targets) {
             // respecte W3C en reprenant certaines instructions appliquées aux tabindex. Ne doivent pas recevoir de focus:
             // - un input element hidden http://www.w3.org/TR/html5/editing.html#attr-tabindex
             // - un disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
             // On pourrait utiliser jquery :visible:enabled selector mais jquery ui core fournit :focusable directement
             // (différent de :tabbable par le fait que tab index < 0 est focusable mais pas tabbable)
             // Note: focusable semble respecter hidden input, pas tabbable! bug ?
-            var targets = this._getTargets(),
-                targetIndex = targets.index(this.element),
+            var targetIndex = targets.index(this.element),
                 nextTargetIndex = targetIndex + 1;	
             
             if (this._trigger("validate", null, {
@@ -234,10 +233,7 @@
         },
 
         // returns boolean indiquant si event canceled ou non
-        _minkeyPress: function (keyName, keyChar) {
-            var targets = this._getTargets(),
-                targetIndex = targets.index(this.element);
-        
+        _minkeyPress: function (targets, keyName, keyChar) {        
             // _trigger() est fourni par widget factory et permet de trigger un custom event
             // keypress a ete defini en option pour que le user puisse listen via un callback qui sera evoque ici
             // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
@@ -250,7 +246,7 @@
                 name: keyName,
                 char: keyChar,
                 targets: targets,
-                index: targetIndex
+                index: targets.index(this.element)
             });
             if (canceled !== false) {
                 // redonne le focus au input
@@ -284,8 +280,8 @@
                 case " ":
                     keyName = "space";
                     keyContent = '<span>espace</span>';
-                    handler = function (keyChar, isFull) {
-                        this._minkeyPrint(' ', isFull);
+                    handler = function (targets, keyChar, isFull) {
+                        this._minkeyPrint(targets, ' ', isFull);
                     };
                     break;
                 case "-":
@@ -311,10 +307,11 @@
             this._on(key, {
                 click: function () {
                     var valLength = this.element.val().length,
+                        targets = $("." + this.widgetFullName + "-target:focusable"),
                         max = this.element.attr("maxlength") || this.element.attr("max") || valLength + 1;
                 
-                    if (this._minkeyPress(keyName, keyChar) !== false) {
-                        handler.call(this, keyChar, valLength >= max);
+                    if (this._minkeyPress(targets, keyName, keyChar) !== false) {
+                        handler.call(this, targets, keyChar, valLength >= max);
                     }
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
                      * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
@@ -422,7 +419,7 @@
         //	- unbind all events dans le widget namespace (aka custom event comme minkeyboardfull)
         //	- unbind all events ajoutes par _bind() ou _on()
 
-        _destroy: function () { 
+        _destroy: function () {
             this.keyboard.remove();
         },
 
