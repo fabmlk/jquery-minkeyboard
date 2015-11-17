@@ -233,7 +233,7 @@
         _minkeyPress: function () {
             var notfull = true,
                 valLength = this.element.val().length,
-                max = this.element.attr("maxlength") || this.element.attr("size") || valLength + 1;
+                max = this.element.attr("maxlength") || this.element.attr("max") || valLength + 1;
 
             if (valLength >= max) {
                 // _trigger() est fourni par widget factory et permet de trigger un custom event
