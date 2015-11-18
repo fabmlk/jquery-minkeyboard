@@ -61,7 +61,7 @@
                 collision: "flipfit"
             },
             pattern: "", // setting manuel du pattern est possible aussi
-            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN '-1230", // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
+            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN '-1230́̀̂̈", // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
             validate: null, // callback quand le user click sur valider/enter bouton. Le user peut preventDefault pour empêcher le default action
                         // de passer au prochain input associé au widget
                         // passe en param object properties:
@@ -74,6 +74,14 @@
                         // - new: nouvelle valeur de l'input
                         
             layout: {
+                // http://www.decodeunicode.org/en/combining_diacritical_marks
+                // https://fr.wikipedia.org/wiki/Normalisation_Unicode
+                // http://unicode-table.com/en/#
+                combiningpad: [ ["́"], // acute accent
+                                ["̀"], // grave accent
+                                ["̂"], // circumflex
+                                ["̈"]], // diaeresis
+                            
                 mainpad: [['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                           ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
                           ['W', 'X', 'C', 'V', 'B', 'N', "'", '-', ' ']],
@@ -82,7 +90,7 @@
                          ['4', '5', '6'],
                          ['1', '2', '3'],
                          ['0']],
-
+                     
                 controlpad: [["\x08", "\x0A"]]
             }
 
@@ -187,6 +195,26 @@
                 });
             }
         },
+        
+        // keyChar must be a combining mark which can "merge" with a character to obtain normalized unicode character
+        // Ex: A majsucule accent grave = U+0041 U+0300 <=> À
+        _minkeyCombine: function (targets, keyChar) {
+            var value = this.element[0].value;
+
+            var lastChar = value.substr(-1); // get last char
+            var newChar = String.fromCodePoint(lastChar.charCodeAt(0), keyChar.charCodeAt(0)); // calculate new char
+            
+            this.element[0].value = value.slice(0, -1) + newChar; // replace last char with new char
+            
+            if (value !== this.element[0].value) {
+                this._trigger("change", null, {
+                    old: value,
+                    new: this.element[0].value,
+                    targets: targets,
+                    index: targets.index(this.element)
+                });
+            }
+        },
 
         // delete text selected or character before current selection
         // trigger change event if value changed
@@ -280,6 +308,26 @@
                     keyName = "backspace";
                     handler = this._minkeySuppr;
                     keyContent = '<span>' + backspaceIcon + ' Effacer</span>';
+                    break;
+                case ("́"):
+                    keyName = "acute-accent";
+                    handler = this._minkeyCombine;
+                    keyContent = "&nbsp;&nbsp;&#x301";
+                    break;
+                case ("̀"):
+                    keyName = "grave-accent";
+                    handler = this._minkeyCombine;
+                    keyContent = "&nbsp;&nbsp;&#x300";
+                    break;
+                case ("̂"):
+                    keyName = "circumflex-accent";
+                    handler = this._minkeyCombine;
+                    keyContent = "&#x302";
+                    break;
+                case ("̈"):
+                    keyName = "diaeresis-accent";
+                    handler = this._minkeyCombine;
+                    keyContent = "&#x308";
                     break;
                 case " ":
                     keyName = "space";
@@ -388,7 +436,11 @@
             var self = this,
                 padmap = {};
 
-            $.isArray(keyChars) ? keyChars.push("\x0A", "\x08") : keyChars += "\x0A\x08";
+            if ($.isArray(keyChars)) {
+                keyChars = keyChars.concat([].concat.apply([], this.options.layout.controlpad)); // flatten 3D to 2D array
+            } else {
+                keyChars += [].concat.apply([], this.options.layout.controlpad).join(""); // flatten 3D to 2D array
+            }
 
             $.each(this.options.layout, function (pad, layout) {
                 if (!layout) {
