@@ -312,22 +312,20 @@
                 case ("́"):
                     keyName = "acute-accent";
                     handler = this._minkeyCombine;
-                    keyContent = "&nbsp;&nbsp;&#x301";
+                    keyContent = "<span>&nbsp;&nbsp;&#x301</span>";
                     break;
                 case ("̀"):
                     keyName = "grave-accent";
                     handler = this._minkeyCombine;
-                    keyContent = "&nbsp;&nbsp;&#x300";
+                    keyContent = "<span>&nbsp;&nbsp;&#x300</span>";
                     break;
                 case ("̂"):
                     keyName = "circumflex-accent";
                     handler = this._minkeyCombine;
-                    keyContent = "&#x302";
                     break;
                 case ("̈"):
                     keyName = "diaeresis-accent";
                     handler = this._minkeyCombine;
-                    keyContent = "&#x308";
                     break;
                 case " ":
                     keyName = "space";
