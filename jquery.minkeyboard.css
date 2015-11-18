@@ -55,6 +55,10 @@
     font-size: 1rem;
 }
 
+.fab-minkeyboard-combiningpad .fab-minkeyboard-key > * {
+    font-size: 2rem;
+}
+
 .fab-minkeyboard-key svg {
     vertical-align: sub;
 }
