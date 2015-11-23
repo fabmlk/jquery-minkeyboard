@@ -435,6 +435,7 @@
 		/* param keyChars can be string of single-characters or array */
         _buildKeyboardFromKeyChars: function (keyChars) {
             var self = this,
+                firstKeyNameRow, lastKeyNameRow, rowClass,
                 padmap = {};
 
             if ($.isArray(keyChars)) {
@@ -456,8 +457,11 @@
                         }
                     });
                     if (domRow.length > 0) {
+                        firstKeyNameRow = domRow[0].className.match(new RegExp(self.widgetFullName + "-key-(.+)"))[1];
+                        lastKeyNameRow = domRow[domRow.length - 1].className.match(new RegExp(self.widgetFullName + "-key-(.+)"))[1];
+                        rowClass = self.widgetFullName + "-row-" + firstKeyNameRow + (domRow.length > 1 ? "-" + lastKeyNameRow : "");
                         padmap[pad] = padmap[pad] || $("<div>").addClass(self.widgetFullName + "-pad " + self.widgetFullName + "-" + pad);
-                        padmap[pad].append($(domRow).wrapAll("<div>").parent()); // wrap*() returns inner element; call parent
+                        padmap[pad].append($(domRow).wrapAll("<div class=" + rowClass + ">").parent()); // wrap*() returns inner element; call parent
                     }
                 });
             });
