@@ -31,10 +31,6 @@
     margin-left: 10px;
 }
 
-.fab-minkeyboard-row {
-    display: table-row;
-}
-
 .fab-minkeyboard-key {
     display: table-cell;
     width: 1em;
