@@ -457,7 +457,7 @@
                     });
                     if (domRow.length > 0) {
                         padmap[pad] = padmap[pad] || $("<div>").addClass(self.widgetFullName + "-pad " + self.widgetFullName + "-" + pad);
-                        padmap[pad].append($(domRow).wrapAll("<div>").addClass(self.widgetFullName + "-row").parent()); // wrap*() returns inner element; call parent
+                        padmap[pad].append($(domRow).wrapAll("<div class='" + self.widgetFullName + "-row" + "'>").parent()); // wrap*() returns inner element; call parent
                     }
                 });
             });
