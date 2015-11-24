@@ -159,7 +159,7 @@
                     && !$(event.target).closest("." + this.widgetFullName + "-key").length)
                 || (event.keyCode || event.which) === $.ui.keyCode.TAB ) {
                 this._hide(this.keyboard, this.options.hide);
-				this._trigger("close");
+                this._trigger("close");
             }
         },
 
@@ -173,7 +173,7 @@
                         of: (event && event.target) || this.element
                 }, this.options.position));
             }
-			this._trigger("open");
+            this._trigger("open");
         },
 
         // print character at cursor current position (replace text if selected)
@@ -422,12 +422,17 @@
 
         _buildKeyboardFromPattern: function (pattern) {
             var regex,
-                keyChars = [];
+                parser = /(\[.+?\])/g,
+                match = [],
+                keyChars = "";
 
-            // version 0.1.0: on garde seulement ce qui est dans le 1er crochet
-            pattern = pattern.replace(/.*(\[.+?\]).*/, "$1");
-            regex = new RegExp(pattern, 'g');
-            keyChars = this.options.keys.match(regex); // on obtient un array des keys necessaires matchant le pattern
+            // version 0.1.1: on garde iterativement via exec() tout ce qui se trouve entre crochets
+            // pour ajouter/exclure les éléments présents dans keys
+            while (match = parser.exec(pattern)) {
+                regex = new RegExp(match[0], 'g');
+                keyChars += this.options.keys.match(regex).join("");
+            }
+
             this._buildKeyboardFromKeyChars(keyChars);
         },
         
