@@ -361,7 +361,7 @@
                 click: function () {
                     var valLength = this.element.val().length,
                         targets = $("." + this.widgetFullName + "-target:focusable"),
-                        max = this.element.attr("maxlength") || this.element.attr("max") || valLength + 1;
+                        max = this.element.attr("maxlength") || valLength + 1;
                 
                     if (this._minkeyPress(targets, keyName, keyChar) !== false) {
                         handler.call(this, targets, keyChar, valLength >= max);
