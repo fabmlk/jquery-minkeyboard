@@ -1,3 +1,7 @@
+/**
+ * Custom jQuery UI Widget to provide for a customable keyboard.
+ * @author Lanoux Fabien
+ */
 (function( factory ) {
 	if ( typeof define === "function" && define.amd ) {
 		// AMD. Register as an anonymous module.
