@@ -155,6 +155,9 @@
         // Si on focus un input avec widget, open sera called, mais on fait attention a ce qu'il ne soit pas closed juste apres!
         // Prend aussi en compte la navigation via pression sur Tab (on peut utiliser directement $.ui.keyCode fournit par jquery-ui/core)
         close: function (event) {
+            if (!this.keyboard.is(":visible")) {
+                return;
+            }
             if (!event
                 || (event.target !== this.element[0] // click sur l'input déjà actif
                     // pour mousedown event uniquement
@@ -169,6 +172,9 @@
 
         // open est triggered aussi quand on click sur un element avec minkeyboard widget
         open: function (event) {
+            if (this.keyboard.is(":visible")) {
+                return;
+            }
             // WARNING: element doit etre visible avant d'etre positionne!
             // (https://forum.jquery.com/topic/position-keeps-adding-original-left-and-top-to-current-values-in-ie-8)
             this._show(this.keyboard, this.options.show);
