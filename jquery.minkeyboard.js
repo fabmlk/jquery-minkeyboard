@@ -1,7 +1,3 @@
-/**
- * Custom jQuery UI Widget to provide for a customable keyboard.
- * @author Lanoux Fabien
- */
 (function( factory ) {
 	if ( typeof define === "function" && define.amd ) {
 		// AMD. Register as an anonymous module.
@@ -155,9 +151,6 @@
         // Si on focus un input avec widget, open sera called, mais on fait attention a ce qu'il ne soit pas closed juste apres!
         // Prend aussi en compte la navigation via pression sur Tab (on peut utiliser directement $.ui.keyCode fournit par jquery-ui/core)
         close: function (event) {
-            if (!this.keyboard.is(":visible")) {
-                return;
-            }
             if (!event
                 || (event.target !== this.element[0] // click sur l'input déjà actif
                     // pour mousedown event uniquement
@@ -172,9 +165,6 @@
 
         // open est triggered aussi quand on click sur un element avec minkeyboard widget
         open: function (event) {
-            if (this.keyboard.is(":visible")) {
-                return;
-            }
             // WARNING: element doit etre visible avant d'etre positionne!
             // (https://forum.jquery.com/topic/position-keeps-adding-original-left-and-top-to-current-values-in-ie-8)
             this._show(this.keyboard, this.options.show);
@@ -287,17 +277,17 @@
             // Le 2e arg est le jquery event a l'origine. En passant null, on laisse jQuery creer tout seul un custom event object dont le type 'minkeyboard' est le nom du plugin et le name la concatenation 'minkeyboardfull'
             //	Remarque: si le nom du plugin === event name (ex 'drag' plugin pour 'drag' event), le name n'est pas double en 'dragdrag' mais juste 'drag'
             // Le callback recevra 1st arg le triggering event, 2nd arg custom ui object, et this fera référence à this.element
-            var canceled = this._trigger("keypress", null, {
+            var notcanceled = this._trigger("keypress", null, {
                 name: keyName,
                 char: keyChar,
                 targets: targets,
                 index: targets.index(this.element)
             });
-            if (canceled !== false) {
+            if (notcanceled === true) {
                 // redonne le focus au input
                 this.element.focus();
             }
-            return canceled;
+            return notcanceled;
         },
 
         // returns jquery object représentant une key
