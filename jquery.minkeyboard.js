@@ -72,8 +72,8 @@
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
-            opened: null, // callback events quand le keyboard est open/close
-            closed: null,
+            open: null, // callback events quand le keyboard est open/close
+            close: null,
             layout: {
                 // http://www.decodeunicode.org/en/combining_diacritical_marks
                 // https://fr.wikipedia.org/wiki/Normalisation_Unicode
@@ -388,7 +388,8 @@
         //	
         // Remarque: depuis jquery ui 1.11 la built-in method "instance" permet de retrouver notre instance sans passer par data():
         //	$('selector').data("fab-minkeyboard").close() <=> $('selector').minkeyboard("instance").close()
-        //	A noter: dans ces 2 cas, undefined est retourne, alors que si methode appelee normalement via .minkeyboard("close"),		//	un jQuery object est retourne pour chaining (pour cela on doit retourner undefined dans notre methode)!
+        //	A noter: dans ces 2 cas, undefined est retourne, alors que si methode appelee normalement via .minkeyboard("close"),
+        //	un jQuery object est retourne pour chaining (pour cela on doit retourner undefined dans notre methode)!
         _create: function () {
             this._createKeyboard();
 
