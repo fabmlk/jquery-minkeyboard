@@ -59,7 +59,7 @@ fab-minkeyboard-pad.fab-minkeyboard-numpad {
     float: none;
 }
 
-.fab-minkeyboard-combiningpad > fab-minkeyboard-row {
+.fab-minkeyboard-combiningpad > .fab-minkeyboard-row {
     display: flex;
     justify-content: center;
 }
