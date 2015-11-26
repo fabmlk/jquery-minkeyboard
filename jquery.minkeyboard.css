@@ -27,11 +27,11 @@
     padding: 3px;
 }
 
-fab-minkeyboard-pad.fab-minkeyboard-numpad {
+.fab-minkeyboard .fab-minkeyboard-pad.fab-minkeyboard-numpad {
     margin-left: 10px;
 }
 
-.fab-minkeyboard-key {
+.fab-minkeyboard .fab-minkeyboard-key {
     display: table-cell;
     width: 1em;
     line-height: 1em; 
@@ -45,37 +45,37 @@ fab-minkeyboard-pad.fab-minkeyboard-numpad {
     -moz-user-select: none;
 }
 
-.fab-minkeyboard-key:active {
+.fab-minkeyboard .fab-minkeyboard-key:active {
     transform: translateY(1px);
     box-shadow: inset 0px 0px 10px 0px rgba(50, 50, 50, 0.20)
 }
 
-.fab-minkeyboard-key > * {
+.fab-minkeyboard .fab-minkeyboard-key > * {
     display: block;
     font-size: 1rem;
 }
 
-.fab-minkeyboard-combiningpad {
+.fab-minkeyboard .ui-widget-content > .fab-minkeyboard-pad.fab-minkeyboard-combiningpad {
     float: none;
 }
 
-.fab-minkeyboard-combiningpad > .fab-minkeyboard-row {
+.fab-minkeyboard .fab-minkeyboard-combiningpad > .fab-minkeyboard-row {
     display: flex;
     justify-content: center;
 }
 
-.fab-minkeyboard-combiningpad .fab-minkeyboard-key > * {
+.fab-minkeyboard .fab-minkeyboard-combiningpad .fab-minkeyboard-key > * {
     font-size: 2rem;
 }
 
-.fab-minkeyboard-key svg {
+.fab-minkeyboard .fab-minkeyboard-key svg {
     vertical-align: sub;
 }
 
-.fab-minkeyboard-numpad .fab-minkeyboard-key-0 {
+.fab-minkeyboard .fab-minkeyboard-numpad .fab-minkeyboard-key-0 {
     width: 3em;
 }
 
-.fab-minkeyboard-key-enter, .fab-minkeyboard-key-space, .fab-minkeyboard-key-backspace {
+.fab-minkeyboard .fab-minkeyboard-key-enter, .fab-minkeyboard-key-space, .fab-minkeyboard-key-backspace {
     width: 2em;
 }
