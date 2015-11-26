@@ -27,7 +27,7 @@
     padding: 3px;
 }
 
-.fab-minkeyboard-pad:not(:first-child) {
+fab-minkeyboard-pad.fab-minkeyboard-numpad {
     margin-left: 10px;
 }
 
@@ -53,6 +53,15 @@
 .fab-minkeyboard-key > * {
     display: block;
     font-size: 1rem;
+}
+
+.fab-minkeyboard-combiningpad {
+    float: none;
+}
+
+.fab-minkeyboard-combiningpad > fab-minkeyboard-row {
+    display: flex;
+    justify-content: center;
 }
 
 .fab-minkeyboard-combiningpad .fab-minkeyboard-key > * {
