@@ -65,7 +65,7 @@
                 collision: "flipfit"
             },
             pattern: "", // setting manuel du pattern est possible aussi
-            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN '-1230́̀̂̈", // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
+            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN @.'-1230́̀̂̈", // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
             validate: null, // callback quand le user click sur valider/enter bouton. Le user peut preventDefault pour empêcher le default action
                         // de passer au prochain input associé au widget
                         // passe en param object properties:
@@ -401,7 +401,7 @@
 
             this.element.addClass(this.widgetFullName + '-target');
 
-			// si l'element n'as pas de pattern, on lui autorise tout le keypad
+            // si l'element n'as pas de pattern, on lui autorise tout le keypad
             this.options.pattern = this.options.pattern || this.element.attr("pattern") || '[' + this.options.keys + ']';
             this._buildKeyboardFromPattern(this.options.pattern);
 
