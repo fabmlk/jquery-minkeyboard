@@ -403,7 +403,7 @@
             this.element.addClass(this.widgetFullName + '-target');
 
             // si l'element n'as pas de pattern, on lui autorise tout le keypad
-            this.options.pattern = this.options.pattern || this.element.attr("pattern") || '[' + this.options.keys + ']';
+            this.options.pattern = this.options.pattern || this.element.attr("pattern") || '[' + this.options.keys.replace(/([[\]-])/g, "\\$1") + ']';
             this._buildKeyboardFromPattern(this.options.pattern);
 
             // on ajoute au current element la classe "minkeyboard" (this.widgetFullName depuis jquery ui 1.9, avant on utilisant this.widgetBaseClass)
