@@ -76,6 +76,10 @@
     width: 3em;
 }
 
-.fab-minkeyboard-key-enter, .fab-minkeyboard-key-space, .fab-minkeyboard-key-backspace {
+.fab-minkeyboard-key-space {
+    width: 4em;
+}
+
+.fab-minkeyboard-key-enter, .fab-minkeyboard-key-backspace {
     width: 2em;
 }
