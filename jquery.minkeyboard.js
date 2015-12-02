@@ -213,12 +213,18 @@
         // keyChar must be a combining mark which can "merge" with a character to obtain normalized unicode character
         // Ex: A majsucule accent grave = U+0041 U+0300 <=> À
         _minkeyCombine: function (targets, keyChar) {
+            var selStart = this.element[0].selectionStart;
+            var selEnd = this.element[0].selectionEnd;
             var value = this.element[0].value;
 
-            var lastChar = value.substr(-1); // get last char
-            var newChar = String.fromCodePoint(lastChar.charCodeAt(0), keyChar.charCodeAt(0)); // calculate new char
+            if (selStart === 0 || selStart !== selEnd) { // if selection or empty, do nothing
+                return;
+            }
             
-            this.element[0].value = value.slice(0, -1) + newChar; // replace last char with new char
+            var charBeforeCursor = value.substr(selStart - 1, 1); // get last char
+            var newChar = String.fromCodePoint(charBeforeCursor.charCodeAt(0), keyChar.charCodeAt(0)); // calculate new char
+            
+            this.element[0].value = value.slice(0, selStart - 1) + newChar + value.slice(selStart + 1); // replace last char with new char
             
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
