@@ -78,16 +78,16 @@
                         // - new: nouvelle valeur de l'input
             open: null, // callback events quand le keyboard est open/close
             close: null,
-            layout: {
+            layout: {       
+                mainpad: [['&', '"', "'", '(', '-', 'ç', '@', ')', 'Ç'],
+                          ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                          ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
+                          ['W', 'X', 'C', 'V', 'B', 'N', '.', ' ']],
+                      
                 // http://www.decodeunicode.org/en/combining_diacritical_marks
                 // https://fr.wikipedia.org/wiki/Normalisation_Unicode
                 // http://unicode-table.com/en/#
                 combiningpad: [["́", "̀", "̂", "̈"]], // accents: acute, grave, circumflex, diaeresis
-                            
-                mainpad: [['@', "'", '-', '.', '+', '&', '(', ')'],
-                          ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-                          ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-                          ['W', 'X', 'C', 'V', 'B', 'N', ' ']],
 
                 numpad: [['7', '8', '9'],
                          ['4', '5', '6'],
