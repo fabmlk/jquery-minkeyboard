@@ -69,7 +69,7 @@
                 collision: "flipfit"
             },
             pattern: "", // setting manuel du pattern est possible aussi
-            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN @.'-&+()Ç\"1230́̀̂̈", // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
+            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN @.'-&+()Ç\"1230́̀̂̈".split(""), // setting manuel des keys sont possibles sous forme de string: override pattern si les 2 sont spécifiés à la construction
             validate: null, // callback quand le user click sur valider/enter bouton. Le user peut preventDefault pour empêcher le default action
                         // de passer au prochain input associé au widget
                         // passe en param object properties:
@@ -416,7 +416,7 @@
             this.element.addClass(this.widgetFullName + '-target');
 
             // si l'element n'as pas de pattern, on lui autorise tout le keypad
-            this.options.pattern = this.options.pattern || this.element.attr("pattern") || '[' + this.options.keys.replace(/([[\]-])/g, "\\$1") + ']';
+            this.options.pattern = this.options.pattern || this.element.attr("pattern") || '[' + this.options.keys.join("") + ']';//.replace(/([[\]-])/g, "\\$1") + ']';
             this._buildKeyboardFromPattern(this.options.pattern);
 
             // on ajoute au current element la classe "minkeyboard" (this.widgetFullName depuis jquery ui 1.9, avant on utilisant this.widgetBaseClass)
@@ -451,7 +451,7 @@
             // pour ajouter/exclure les éléments présents dans keys
             while (match = parser.exec(pattern)) {
                 regex = new RegExp(match[0], 'g');
-                keyChars += this.options.keys.match(regex).join("");
+                keyChars += this.options.keys.join("").match(regex).join("");
             }
 
             this._buildKeyboardFromKeyChars(keyChars);
