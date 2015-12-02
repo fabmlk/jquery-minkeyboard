@@ -87,7 +87,10 @@
                 // http://www.decodeunicode.org/en/combining_diacritical_marks
                 // https://fr.wikipedia.org/wiki/Normalisation_Unicode
                 // http://unicode-table.com/en/#
-                combiningpad: [["́", "̀", "̂", "̈"]], // accents: acute, grave, circumflex, diaeresis
+                combiningpad: [["́"],
+                               ["̀"],
+                               ["̂"],
+                               ["̈"]], // accents: acute, grave, circumflex, diaeresis
 
                 numpad: [['7', '8', '9'],
                          ['4', '5', '6'],
