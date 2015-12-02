@@ -54,7 +54,7 @@
     display: block;
     font-size: 1rem;
 }
-
+/*
 .fab-minkeyboard .ui-widget-content > .fab-minkeyboard-pad.fab-minkeyboard-combiningpad {
     float: none;
 }
@@ -62,7 +62,7 @@
 .fab-minkeyboard-combiningpad > .fab-minkeyboard-row {
     display: flex;
     justify-content: center;
-}
+}*/
 
 .fab-minkeyboard-combiningpad .fab-minkeyboard-key > * {
     font-size: 2rem;
@@ -77,7 +77,7 @@
 }
 
 .fab-minkeyboard-key-space {
-    width: 4em;
+    width: 3em;
 }
 
 .fab-minkeyboard-key-enter, .fab-minkeyboard-key-backspace {
