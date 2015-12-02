@@ -27,7 +27,7 @@
     padding: 3px;
 }
 
-.fab-minkeyboard-pad.fab-minkeyboard-numpad {
+.fab-minkeyboard-pad:not(:first-child) {
     margin-left: 10px;
 }
 
