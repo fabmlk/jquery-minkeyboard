@@ -35,6 +35,8 @@
     // tout attribut commencant par '_' est automatiquement ignoree et non accessible via $.widget('minkeyboard', 'mymethode')
     // (mais toujours evocable directement via trick data() ou instance(): voir ci-dessous)
     // toutes les methodes heritees ici viennent en fait d'un base prototype $.Widget.prototype.
+    // Les default values d'un widget peuvent accédées/modifiées via:
+    // $.ui.minkeyboard.prototype.options.somekey = somevalue
     var minkeyboardOverrides = {
         // on set les default options
         // a la creation, widget framework va copier le widget options attribut dans jquery plugin options instance (qui sera accessible via this directement)
