@@ -440,7 +440,7 @@
             // de tester quel widget est ouvert pour quel element
             this._on(this.document, {
                 mousedown: "close",
-                touchend: "close",
+                touchstart: "close",
                 keydown: "close"
             });
         },
