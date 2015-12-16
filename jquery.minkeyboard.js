@@ -151,7 +151,10 @@
             this._on(this.keyboard, {
                 mousedown: function (event) {
                     event.stopPropagation();
-                }	
+                },
+                touchstart: function (event) {
+                    event.stopPropagation();
+                }
             });
         },
 
