@@ -231,7 +231,7 @@
             var charBeforeCursor = value.substr(selStart - 1, 1); // get last char
             var newChar = String.fromCodePoint(charBeforeCursor.charCodeAt(0), keyChar.charCodeAt(0)); // calculate new char
             
-            this.element[0].value = value.slice(0, selStart - 1) + newChar + value.slice(selStart + 1); // replace last char with new char
+            this.element[0].value = value.slice(0, selStart - 1) + newChar + value.slice(selStart); // replace last char with new char
             
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
