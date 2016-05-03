@@ -83,8 +83,3 @@
 .fab-minkeyboard-key-enter, .fab-minkeyboard-key-backspace {
     width: 2em;
 }
-
-.fab-minkeyboard-key-diaeresis-accent > span, .fab-minkeyboard-key-circumflex-accent > span {
-    position: relative;
-    left: -10px;
-}
