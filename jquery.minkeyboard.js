@@ -174,7 +174,7 @@
                     && !$(event.target).closest("." + this.widgetFullName + "-key").length)
                 || (event.keyCode || event.which) === $.ui.keyCode.TAB ) {
                 this._hide(this.keyboard, this.options.hide);
-                this._trigger("close");
+                this._trigger("close", event);
             }
         },
 
@@ -191,7 +191,7 @@
                         of: (event && event.target) || this.element
                 }, this.options.position));
             }
-            this._trigger("open");
+            this._trigger("open", event);
         },
 
         // print character at cursor current position (replace text if selected)
@@ -298,7 +298,8 @@
             // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
             // automatiquement annulee si le user intercepte via preventDefault (ou return false)
             // Dans ce cas _trigger() retourne false pour nous l'indiquer si besoin de traiter ce cas etc...
-            // Le 2e arg est le jquery event a l'origine. En passant null, on laisse jQuery creer tout seul un custom event object dont le type 'minkeyboard' est le nom du plugin et le name la concatenation 'minkeyboardfull'
+            // Le 2e arg est le jquery event a l'origine. En passant null, on laisse jQuery creer tout seul un custom event object dont le type 'minkeyboard'
+            // est le nom du plugin et le name la concatenation 'minkeyboardfull'
             //	Remarque: si le nom du plugin === event name (ex 'drag' plugin pour 'drag' event), le name n'est pas double en 'dragdrag' mais juste 'drag'
             // Le callback recevra 1st arg le triggering event, 2nd arg custom ui object, et this fera référence à this.element
             var canceled = this._trigger("keypress", null, {
