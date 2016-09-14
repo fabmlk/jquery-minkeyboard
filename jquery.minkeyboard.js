@@ -420,6 +420,8 @@
         _create: function () {
             this._createKeyboard();
 
+            // on ajoute au current element la classe "minkeyboard" (this.widgetFullName depuis jquery ui 1.9, avant on utilisant this.widgetBaseClass)
+            //this.element.addClass(this.widgetFullName || this.widgetBaseClass);
             this.element.addClass(this.widgetFullName + '-target');
 
             // si l'element n'as pas de pattern, on lui autorise tout le keypad
@@ -429,9 +431,6 @@
             } else {
                 this._buildKeyboardFromKeyChars(this.options.keys);
             }
-
-            // on ajoute au current element la classe "minkeyboard" (this.widgetFullName depuis jquery ui 1.9, avant on utilisant this.widgetBaseClass)
-            //this.element.addClass(this.widgetFullName || this.widgetBaseClass);
 
             // _on() garde le contexte this sur notre widget intance
             // + events sont automatiquement namespaced
@@ -515,6 +514,7 @@
         //	- unbind all events ajoutes par _bind() ou _on()
 
         _destroy: function () {
+            this.element.removeClass(this.widgetFullName + '-target');
             this.keyboard.remove();
         },
 
