@@ -59,7 +59,7 @@
                         // $(el).on('minkeyboardkeypress',...)
                         // "All widgets have a create event which is triggered upon instantiation"
                         // passe en param object avec property patternMismatch indiquant si il y a patternmismatch 
-
+            openevent: "focus", // event à écouter pour l'ouverture du keyboard
             // built-in options pour animation quand on show/hide le widget
             show: false, // true for classic fadeIn
             hide: false, // true classic fadeOut
@@ -286,7 +286,7 @@
                 if (nextTargetIndex >= targets.length) {
                     this.element.blur(); // fini!
                 } else {
-                    targets.eq(nextTargetIndex).focus(); // give focus au prochain
+                    targets.eq(nextTargetIndex).trigger(this.options.openevent); // give focus au prochain
                 }
             }
         },
@@ -310,7 +310,7 @@
             });
             if (canceled !== false) {
                 // redonne le focus au input
-                this.element.focus();
+                this.element.trigger(this.options.openevent);
             }
             return canceled;
         },
@@ -435,9 +435,9 @@
             // _on() garde le contexte this sur notre widget intance
             // + events sont automatiquement namespaced
             // + autre avantage sur on(): permet au widget factory de detruire automatiquement nos events handlers on destroy
-            this._on(this.element, {
-                focusin: "open"
-            });
+            var eventHandler = {};
+            eventHandler[this.options.openevent] = "open";
+            this._on(this.element, eventHandler);
             // quand on click n'importe où on fermera le widget, plus exactement, on cherchera à écouter mousedown
             // car par ex si le user select un text en dehors de l'input, click n'a pas lieu alors qu'on voudra fermer le widget!
             // Remarque: cet event est attache une fois par element present dans la jquery collection
