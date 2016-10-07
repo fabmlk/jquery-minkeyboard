@@ -308,10 +308,7 @@
                 targets: targets,
                 index: targets.index(this.element)
             });
-            if (canceled !== false) {
-                // redonne le focus au input
-                this.element.trigger(this.options.openevent);
-            }
+
             return canceled;
         },
 
@@ -393,6 +390,9 @@
                 
                     if (this._minkeyPress(targets, keyName, keyChar) !== false) {
                         handler.call(this, targets, keyChar, valLength >= max);
+
+                        // redonne le focus au input
+                        this.element.trigger(this.options.openevent);
                     }
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
                      * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
