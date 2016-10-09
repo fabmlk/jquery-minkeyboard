@@ -232,6 +232,7 @@
             var newChar = String.fromCodePoint(charBeforeCursor.charCodeAt(0), keyChar.charCodeAt(0)); // calculate new char
             
             this.element[0].value = value.slice(0, selStart - 1) + newChar + value.slice(selStart); // replace last char with new char
+            this.element[0].selectionStart = this.element[0].selectionEnd = selStart + keyChar.length; // set cursor after current position
             
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
