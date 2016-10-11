@@ -209,6 +209,9 @@
             }
             this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart + keyChar.length; // set cursor after current position
+
+            // redonne le focus au input
+            this.element.trigger(this.options.openevent);
             
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
@@ -236,6 +239,9 @@
             
             this.element[0].value = value.slice(0, selStart - 1) + newChar + value.slice(selStart); // replace last char with new char
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart + keyChar.length; // set cursor after current position
+
+            // redonne le focus au input
+            this.element.trigger(this.options.openevent);
             
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
@@ -259,6 +265,9 @@
             }
             this.element[0].value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
+
+            // redonne le focus au input
+            this.element.trigger(this.options.openevent);
             
             if (value !== this.element[0].value) {
                 this._trigger("change", null, {
@@ -394,9 +403,6 @@
                 
                     if (this._minkeyPress(targets, keyName, keyChar) !== false) {
                         handler.call(this, targets, keyChar, valLength >= max);
-
-                        // redonne le focus au input
-                        this.element.trigger(this.options.openevent);
                     }
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
                      * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
