@@ -80,6 +80,9 @@
                         // passe en param object properties:
                         // - old: ancienne valeur de l'input
                         // - new: nouvelle valeur de l'input
+                        // Note: un champs text trigger en fait l'event "input" a chaque changement, et ne trigger "change" que lorsque le champs perd le focus.
+                        // Comme en pratique on va jongler entre focus et blur à chaque instant, on peut considérer que trigger "change" a chaque update
+                        // et le correct event à trigger. A cause de ça, "input" n'est pas considéré.
             open: null, // callback events quand le keyboard est open/close
             close: null,
             layout: {       
