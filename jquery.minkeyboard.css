@@ -10,7 +10,7 @@
 
 .fab-minkeyboard .ui-widget-content {
     display: table;
-    /* center horizontally: we used to have simply "margin: auto" which works fine except in IE 11... didn't find out why! */
+    /* shame css => center horizontally: we used to have simply "margin: auto" which works fine except in IE 11... didn't find out why! */
     position: relative;
     left: 50%;
     transform: translateX(-50%);
@@ -73,6 +73,7 @@
 
 .fab-minkeyboard-key svg {
     vertical-align: sub;
+    max-width: 2em; /* shame css => in IE 11 inline svg width gives weird results, we max it out */
 }
 
 .fab-minkeyboard-numpad .fab-minkeyboard-key-0 {
