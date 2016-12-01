@@ -10,7 +10,10 @@
 
 .fab-minkeyboard .ui-widget-content {
     display: table;
-    margin: auto;
+    /* center horizontally: we used to have simply "margin: auto" which works fine except in IE 11... didn't find out why! */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .fab-minkeyboard .ui-widget-content > .fab-minkeyboard-pad {
