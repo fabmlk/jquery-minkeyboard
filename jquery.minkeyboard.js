@@ -14,8 +14,9 @@
 	} else if(typeof module === 'object' && module.exports) {
 		// Node/CommonJS
 		require("jquery-ui/core"); // utilisé pour keyCode TAB et :tabbable selector
-                require("jquery-ui/position");
-		require("jquery-ui/widget");	
+        require("jquery-ui/position");
+		require("jquery-ui/widget");
+        require('string.fromcodepoint'); // polyfill for IE (installed as dependency in package.json)
 		module.exports = factory(require("jquery"));
 	} else {
 		// Browser globals

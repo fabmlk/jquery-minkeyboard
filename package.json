@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/fabmlk/minkeyboard/issues"
   },
-  "homepage": "https://github.com/fabmlk/minkeyboard#readme"
+  "homepage": "https://github.com/fabmlk/minkeyboard#readme",
+  "dependencies": {
+    "string.fromcodepoint": "^0.2.1"
+  }
 }
