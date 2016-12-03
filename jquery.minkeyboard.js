@@ -184,7 +184,10 @@
 
         // open est triggered aussi quand on click sur un element avec minkeyboard widget
         open: function (event) {
-            if (this.keyboard.is(":visible")) {
+            // update: a cause d'un bug sur IE qui fait que jquery "focus" event est fired 2 fois
+            // (http://jquery.com/upgrade-guide/1.9/#order-of-triggered-quot-focus-quot-events)
+            // on check également si l'élément n'a pas déjà le focus (check inutile sur les autres browsers)
+            if (this.keyboard.is(":visible") || !this.element.is(":focus")) {
                 return;
             }
             // WARNING: element doit etre visible avant d'etre positionne!
@@ -447,7 +450,8 @@
             // + events sont automatiquement namespaced
             // + autre avantage sur on(): permet au widget factory de detruire automatiquement nos events handlers on destroy
             var eventHandler = {};
-            eventHandler[this.options.openevent] = "open";
+            eventHandler[this.options.openevent] = "open"; // accepte string (ancienne version) ou handler function ("open" <=> this.open)
+
             this._on(this.element, eventHandler);
             // quand on click n'importe où on fermera le widget, plus exactement, on cherchera à écouter mousedown
             // car par ex si le user select un text en dehors de l'input, click n'a pas lieu alors qu'on voudra fermer le widget!
