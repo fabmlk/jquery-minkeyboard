@@ -184,10 +184,7 @@
 
         // open est triggered aussi quand on click sur un element avec minkeyboard widget
         open: function (event) {
-            // update: a cause d'un bug sur IE qui fait que jquery "focus" event est fired 2 fois
-            // (http://jquery.com/upgrade-guide/1.9/#order-of-triggered-quot-focus-quot-events)
-            // on check également si l'élément n'a pas déjà le focus (check inutile sur les autres browsers)
-            if (this.keyboard.is(":visible") || !this.element.is(":focus")) {
+            if (this.keyboard.is(":visible")) {
                 return;
             }
             // WARNING: element doit etre visible avant d'etre positionne!
