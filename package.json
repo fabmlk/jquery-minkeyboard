@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/fabmlk/minkeyboard#readme",
   "dependencies": {
-    "string.fromcodepoint": "^0.2.1"
+    "string.fromcodepoint": "^0.2.1",
+    "unorm": "^1.4.1"
   }
 }

@@ -9,7 +9,9 @@
 			"jquery",
 			"jquery-ui/core",
 			"jquery-ui/position",
-			"jquery-ui/widget"
+			"jquery-ui/widget",
+            "string.fromcodepoint",
+            "unorm"
 		], factory );
 	} else if(typeof module === 'object' && module.exports) {
 		// Node/CommonJS
@@ -17,6 +19,7 @@
         require("jquery-ui/position");
 		require("jquery-ui/widget");
         require('string.fromcodepoint'); // polyfill for IE (installed as dependency in package.json)
+        require('unorm'); // polyfill for ES6 normalize() + can be used standalone
 		module.exports = factory(require("jquery"));
 	} else {
 		// Browser globals
@@ -226,6 +229,13 @@
         
         // keyChar must be a combining mark which can "merge" with a character to obtain normalized unicode character
         // Ex: A majsucule accent grave = U+0041 U+0300 <=> À
+        // Update: normalize accent char using NFC.
+        // How to use accents from a pattern:
+        //  1/ enumerate the accents in the pattern within square brackets, along with other chars or ranges (accents are spaced-out for better readability in the example):
+        //       [ ́  ̀ ̂  ̈  A-Z]
+        //     The keyboard will pick-up the individual accents
+        //  2/ as combined accents are normalized into single chars, add the true range of accented letters to pass validation in your input, typically \u00C0-\u017F for french:
+        //       [ ́  ̀ ̂  ̈  \u00C0-\u017FA-Z]
         _minkeyCombine: function (targets, keyChar) {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
@@ -237,6 +247,7 @@
             
             var charBeforeCursor = value.substr(selStart - 1, 1); // get last char
             var newChar = String.fromCodePoint(charBeforeCursor.charCodeAt(0), keyChar.charCodeAt(0)); // calculate new char
+            newChar = newChar.normalize('NFC'); // normalize() here is either native or unorm's polyfill
             
             this.element[0].value = value.slice(0, selStart - 1) + newChar + value.slice(selStart); // replace last char with new char
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart + keyChar.length; // set cursor after current position
