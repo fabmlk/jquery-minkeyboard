@@ -250,7 +250,9 @@
             newChar = newChar.normalize('NFC'); // normalize() here is either native or unorm's polyfill
             
             this.element[0].value = value.slice(0, selStart - 1) + newChar + value.slice(selStart); // replace last char with new char
-            this.element[0].selectionStart = this.element[0].selectionEnd = selStart + keyChar.length; // set cursor after current position
+            if (newChar.length > 1) { // if we replaced the char with another 1-length char, nothing to advance
+                this.element[0].selectionStart = this.element[0].selectionEnd = selStart + newChar.length; // set cursor after current position
+            }
 
             // redonne le focus au input
             this.element.trigger(this.options.openevent);
