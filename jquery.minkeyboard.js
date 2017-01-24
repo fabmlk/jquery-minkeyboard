@@ -73,7 +73,7 @@
                 collision: "flipfit"
             },
             pattern: "", // setting manuel du pattern est possible aussi
-            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN @.'_-&+()Ç\"1230́̀̂̈".split(""), // setting manuel des keys sont possibles sous forme d'array: override pattern si les 2 sont spécifiés à la construction
+            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN @.'_-&+()Ç\"/\\1230́̀̂̈".split(""), // setting manuel des keys sont possibles sous forme d'array: override pattern si les 2 sont spécifiés à la construction
             validate: null, // callback quand le user click sur valider/enter bouton. Le user peut preventDefault pour empêcher le default action
                         // de passer au prochain input associé au widget
                         // passe en param object properties:
@@ -89,8 +89,8 @@
                         // et le correct event à trigger. A cause de ça, "input" n'est pas considéré.
             open: null, // callback events quand le keyboard est open/close
             close: null,
-            layout: {       
-                mainpad: [['&', '"', "'", '(', '-', '_', 'Ç', '@', ')', '+'],
+            layout: {
+                mainpad: [['&', '"', "'", '(', '-', '_', 'Ç', '@', ')', '+', '/', '\\'],
                           ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                           ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
                           ['W', 'X', 'C', 'V', 'B', 'N', '.', ' ']],
