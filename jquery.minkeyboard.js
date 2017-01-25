@@ -1,5 +1,7 @@
 /**
- * Custom jQuery UI Widget to provide for a customable keyboard.
+ * Custom jQuery UI Widget to provide for a customizable keyboard.
+ * The documentation is contained in comments.
+ * Additional "INFO" comments takes the form of jquery ui tutorial and remarks.
  * @author Lanoux Fabien
  */
 (function( factory ) {
@@ -16,8 +18,8 @@
 	} else if(typeof module === 'object' && module.exports) {
 		// Node/CommonJS
 		require("jquery-ui/core"); // utilisé pour keyCode TAB et :tabbable selector
-        require("jquery-ui/position");
-		require("jquery-ui/widget");
+        require("jquery-ui/position"); // smart keyboard positioning next to the input field in floated mode
+		require("jquery-ui/widget"); // required for jquery ui widget
         require('string.fromcodepoint'); // polyfill for IE (installed as dependency in package.json)
         require('unorm'); // polyfill for ES6 normalize() + can be used standalone
 		module.exports = factory(require("jquery"));
@@ -26,75 +28,93 @@
 		factory( jQuery );
 	}
 }(function( $ ) {
+    // inline svg icon for the backspace key
     var backspaceIcon = '<svg fill="#000000" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
         '<path d="M0 0h24v24H0z" fill="none"/>' +
         '<path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"/>' +
         '</svg>';
 
+    // inline svg icon for the check key
     var checkIcon = '<svg fill="#000000" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
                     '<path d="M0 0h24v24H0z" fill="none"/>' +
                     '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>' +
                     '</svg>';
-    
-    // tout attribut commencant par '_' est automatiquement ignoree et non accessible via $.widget('minkeyboard', 'mymethode')
-    // (mais toujours evocable directement via trick data() ou instance(): voir ci-dessous)
-    // toutes les methodes heritees ici viennent en fait d'un base prototype $.Widget.prototype.
-    // Les default values d'un widget peuvent accédées/modifiées via:
-    // - jquery ui doc spécifie: $.ui.somewidgetame.prototype.options
-    // - mais on peut acceder au jquery plugin interne directement: $.somenamespace.somewidgetname.prototype.options
-    //      Ex: $.fab.minkeyboard.prototype.options
+
+    // plain object to use as the prototype for the widget (last arg to $.widget())
+    // INFO:
+    //   Every attribute starting by '_' is automatically ignored and not accessible from $.wiget('minkeyboard', 'mymethod')
+    //   (but still callable directly from data() or instance(): ci below)
+    //   All methods inherited here actually come from a base prototype $.Widget.prototype.
+    //   Default values of a widget can be accessed/modified from:
+    //     - jquery ui doc tells: $.ui.somewidgetname.prototype.options
+    //     - but we can reach the internal jquery plugin directly with: $.somenamespace.somewidgetname.prototype.options
+    //       Ex: $.fab.minkeyboard.prototype.options
     var minkeyboardOverrides = {
-        // on set les default options
-        // a la creation, widget framework va copier le widget options attribut dans jquery plugin options instance (qui sera accessible via this directement)
-		// Widget factory aussi map default options au prototype du widget, e.g:
-		// $.fab.minkeyboard.prototype.options
-		// Ainsi, un client peut overrider les default options de tous les widgets via:
-		// $.extend($.fab.minkeyboard.prototype.options, {someprop: someval...});
-		// Parfois on verra:
-		// $.extend($.fab.minkeyboard.options, {...})
-		// Ceci est possible si on decide de copier les defaults options dans le widget directement:
-		//	$.fab.minkeyboard.options = $.fab.minkeyboard.prototype.options;
+        // default options
+        // INFO:
+        //    At creation, wiget framework will copy the widget option atributes into jquery plugin options instance (accessible via 'this' directly)
+        //    Widget factory also map default options to the widget's prototype, e.g:
+        //      $.fab.minkeyboard.prototype.options
+        //    Thus, a client can override the default options for all widgets with:
+        //      $.extend($.fab.minkeyboard.prototype.options, {someprop: someval...});
+        //    Sometimes we will see instead:
+        //      $.extend($.fab.minkeyboard.options, {...})
+        //    => this is possible if we decide to copy the default options into the widget directly:
+        //      $.fab.minkeyboard.options = $.fab.minkeyboard.prototype.options;
+
         options: {
-            appendTo: null, // jquery selector ou montrer le keyboard, null pour montrer pres de l'input
-                                            // ne doit pas etre resetter dynamiquement! (ceci est attendu, voir jquery ui dialog widget)
-            keypress: null, // callback quand un key du keyboard est pressed
-                        // le nom "keypress" est le nom de l'event qu'on va devoir trigger via _trigger('keypress')
-                        // en interne jquery va creer un event portant le nom du widget concatene, i.e le user devra listen par:
-                        // $(el).on('minkeyboardkeypress',...)
-                        // "All widgets have a create event which is triggered upon instantiation"
-                        // passe en param object avec property patternMismatch indiquant si il y a patternmismatch 
-            openevent: "focus", // event à écouter pour l'ouverture du keyboard
-            // built-in options pour animation quand on show/hide le widget
+            appendTo: null, // jquery selector targetting where to show the keyboard, null for floated mode (next to the input)
+                            // This option should not be reset dynamically ! (this is expected, see jquery ui dialog widget for another example)
+
+            keypress: null, // callback when a keyboard key is pressed.
+                            // Callback param: the current patternMismatch state
+                            // INFO:
+                            //   The name "keypress" is the event name that will be triggered via _trigger('keypress')
+                            //   Internally, jquery will create an event with the name of the widget prepended, i.e. the user will listen for
+                            //     $(el).on('minkeyboardkeypress',...)
+                            //   "All widgets have a create event which is triggered upon instantiation"
+
+            openevent: "focus", // event to listen indicating the keyboard should be opened
+
+            // built-in options for basic animation when the widget is shown/hidden
             show: false, // true for classic fadeIn
-            hide: false, // true classic fadeOut
-            position: { // inspire du tooltip widget
-                my: "center top", // positionnement de mon objet (keyboard)
-                at: "center bottom", // positionnement du target (input)
-                collision: "flipfit"
+            hide: false, // true for classic fadeOut
+
+            position: { // ditto tooltip widget
+                my: "center top", // positioning of my widget (keyboard)
+                at: "center bottom", // positioning of the target (input)
+                collision: "flipfit" // collision
             },
-            pattern: "", // setting manuel du pattern est possible aussi
-            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN @.'_-&+()Ç\"/\\1230́̀̂̈".split(""), // setting manuel des keys sont possibles sous forme d'array: override pattern si les 2 sont spécifiés à la construction
-            validate: null, // callback quand le user click sur valider/enter bouton. Le user peut preventDefault pour empêcher le default action
-                        // de passer au prochain input associé au widget
-                        // passe en param object properties:
-                        //  - index: la position du current input parmis tous ceux associés au widget
-                        //  - targets: jQuery Collection des inputs associés au widget
+
+            pattern: "", // pattern to use to build the keyboard. Falls back to target input pattern if this is empty and the input contains a pattern attribute.
+
+            keys: "AZERTYUIOP789QSDFGHJKLM456WXCVBN @.'_-&+()Ç\"/\\1230́̀̂̈".split(""), // array keys that make up the keyboard. If both keys and pattern are set, keys takes precedence at construct.
+
+            validate: null, // callback when user type the "validate" key or press Enter. The user can preventDefault the default action of targetting the next input in the DOM with an instance of this widget.
+                            // Callback params:
+                            //  - index: index of the current input in the DOM amongst other inputs containing instances of the widget ('targets' param below)
+                            //  - targets: jQuery Collection of all the inputs associated to the widget
                         
-            change: null, // callback event quand l'input change (utile car jquery on change listener ne marche pas pour programmatic update!
-                        // passe en param object properties:
-                        // - old: ancienne valeur de l'input
-                        // - new: nouvelle valeur de l'input
-                        // Note: un champs text trigger en fait l'event "input" a chaque changement, et ne trigger "change" que lorsque le champs perd le focus.
-                        // Comme en pratique on va jongler entre focus et blur à chaque instant, on peut considérer que trigger "change" a chaque update
-                        // et le correct event à trigger. A cause de ça, "input" n'est pas considéré.
-            open: null, // callback events quand le keyboard est open/close
-            close: null,
+            change: null, // callback event when the input value changes (useful on change listener is not normally triggered from programmatic update!)
+                          // Callback params:
+                          // - old: old input value
+                          // - new: new input value
+                          // Note 'change' event: a native text field trigger an "input" event on every change but triggers a "change" event only when the field loses focus.
+                          // In practice, we will constantly juggle between focus & blur events, so we can consider that triggering the "change" event on each update is correct.
+                          // Because of this, "input" event is not handled by this widget.
+
+            open: null, // callback event when keyboard is opened
+            close: null, // callback event when keyboard is closed
+
+            // keyboard layout customization
             layout: {
+                // 2D main pad layout
                 mainpad: [['&', '"', "'", '(', '-', '_', 'Ç', '@', ')', '+', '/', '\\'],
                           ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                           ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
                           ['W', 'X', 'C', 'V', 'B', 'N', '.', ' ']],
-                      
+
+                // 2D combining pad layout (accents)
                 // http://www.decodeunicode.org/en/combining_diacritical_marks
                 // https://fr.wikipedia.org/wiki/Normalisation_Unicode
                 // http://unicode-table.com/en/#
@@ -103,41 +123,49 @@
                                ["̂"],
                                ["̈"]], // accents: acute, grave, circumflex, diaeresis
 
+                // 2D numeric pad layout
                 numpad: [['7', '8', '9'],
                          ['4', '5', '6'],
                          ['1', '2', '3'],
                          ['0']],
-                     
+
+                // 2D control pad layout
                 controlpad: [["\x08", "\x0A"]]
             }
 
-            /* heritees/fournies par le widget factory
-            disabled: true/false aussi mappe a built-in functions "disable"/"enable"
-                             quand disabled true, la classe namespace-plugin-disabled + ui-state-disabled + aria-disabled est ajoute sur le main element (this.element)
-            create: event triggered automatiquement pour tout widget apres l'appel a _create(), tout client peut donc ajouter une action a la creation via:
-            $('input').somewidget({create: function(event, ui) { some action }});
-       */
+            // INFO:
+            //   Other options inherited/provided by the widget factory:
+            //   - disabled: true/false also maps  built-in functions "disable"/"enable"
+            //               When disabled is true, the classes namespace-plugin-disabled + ui-state-disabled + aria-disabled is added to the main element (this.element)
+            //   - create: event triggered automatically for every widget after a call to _create(). Every user can then add:
+            //             $('input').somewidget({create: function(event, ui) { some action }});
         },
 
-        /* herites/fournies par widget factory
-        widget: method qui retourne le main element du widget par defaut (this.element). Utilisable par:
-        $('selector').somewidget('widget'); // retourne this.element
-   On peut l'override pour retourner autre chose, par ex dialog widget retourne le <div> wrapper
-        enable/disable: voir option "disabled"
+        // INFO:
+        //   Other methods inherited/provided by the widget factory
+        //   - widget: method returning the main widget element (this.element). Ex:
+        //            $('selector').somewidget('widget'); // returns this.element
+        //            We can override it to return something else, for example dialog widget returns thie <div> wrapper.
+        //   - enable/disable: see "disabled" option
 
-        Metadata plugin: plus inclus depuis 1.10, il permettait de specifier les options du widget directement dans le html:
-        <input type="text" class="{someoption: {someprop: somevalue}}">
-        On peut le reactiver en reinstallant le plugin et utiliser:
-         // si metadata plugin est supporte, _getCreateOptions() est present donc version < 1.10
-                if ($.Widget.prototype._getCreateOptions === $.noop) {
-                        $.extend(minkeyboardOverrides, {
-                                _getCreateOptions: function() {
-                                        return $.metadata && $.metadata.get(this.element[0])[this.widgetName];
-                                }
-                        });
-                }
-        */
+        // Metadata plugin: not included since 1.10, it allowed us to specifiy the widget options directly inside the html:
+        //   <input type="text" class="{someoption: {someprop: somevalue}}">
+        // It can be reactivated by installing the plugin and use it:
+        //
+        //  If metadata plugin is supported,  _getCreateOptions() is available since version < 1.10
+        //  if ($.Widget.prototype._getCreateOptions === $.noop) {
+        //            $.extend(minkeyboardOverrides, {
+        //                    _getCreateOptions: function() {
+        //                            return $.metadata && $.metadata.get(this.element[0])[this.widgetName];
+        //                    }
+        //            });
+        //    }
 
+
+        /**
+         * Creates an empty shell for the keyboard with useful standard jquery ui classes.
+         * @private
+         */
         _createKeyboard: function () {
             this.keyboard = $("<div>")
                 .addClass(this.widgetFullName + " ui-widget ui-corner-all ui-front")
@@ -153,8 +181,8 @@
                 this.keyboard.addClass("fab-minkeyboard-fixed");
             }
             
-            // we don't want to trigger hiding triggered from click to document
-            // click sur keys bubble up sur keyboard: on cancel
+            // we don't want to trigger hiding from a click to document
+            // clicks on keys bubble up to the keyboard: we cancel
             this._on(this.keyboard, {
                 mousedown: function (event) {
                     event.stopPropagation();
@@ -165,19 +193,22 @@
             });
         },
 
-        // close est triggered aussi quand on click sur le document pour cacher le current minkeyboard
-        // cet event est fired autant de fois qu'il y a de minkeyboard widgets
-        // Si on focus un input avec widget, open sera called, mais on fait attention a ce qu'il ne soit pas closed juste apres!
-        // Prend aussi en compte la navigation via pression sur Tab (on peut utiliser directement $.ui.keyCode fournit par jquery-ui/core)
+        /**
+         * Close is triggered also when a click occurs on the document to hide the current minkeyboard.
+         * This event is fired as many times as there are minkeyboard instances.
+         * If we focus an input with the widget, open will be called, but we take care of not closing it right away!
+         * We also take care of the navigation from pressing "Tab" (we can use $.ui.keyCode provided by jquery-ui/core to detect this).
+         * @param {Object} event - the event at the origin for this callback.
+         */
         close: function (event) {
             if (!this.keyboard.is(":visible")) {
                 return;
             }
             if (!event
-                || (event.target !== this.element[0] // click sur l'input déjà actif
-                    // pour mousedown event uniquement
-                    // on veut utiliser closest pour trouver si le target ou un de ses parents est une key
-                    // (par ex click sur span icone contenue dans une span key)
+                || (event.target !== this.element[0] // click on input already active
+                    // for mousedown event only
+                    // We want to use closest to find if the target or one of its parents are a key
+                    // (for example, click on span icone inside a span key)
                     && !$(event.target).closest("." + this.widgetFullName + "-key").length)
                 || (event.keyCode || event.which) === $.ui.keyCode.TAB ) {
                 this._hide(this.keyboard, this.options.hide);
@@ -185,15 +216,18 @@
             }
         },
 
-        // open est triggered aussi quand on click sur un element avec minkeyboard widget
+        /**
+         * Open is triggered also when we click an element having the minkeyboard widget
+         * @param {Object} event - the event at the origin for this callback.
+         */
         open: function (event) {
             if (this.keyboard.is(":visible")) {
                 return;
             }
-            // WARNING: element doit etre visible avant d'etre positionne!
+            // WARNING: element must be visible in order to be positioned!
             // (https://forum.jquery.com/topic/position-keeps-adding-original-left-and-top-to-current-values-in-ie-8)
             this._show(this.keyboard, this.options.show);
-            if (!this.options.appendTo) { // par defaut, positionne pres de l'input
+            if (!this.options.appendTo) { // by default, position next to the input
                 this.keyboard.position($.extend({
                         of: (event && event.target) || this.element
                 }, this.options.position));
@@ -201,8 +235,14 @@
             this._trigger("open", event);
         },
 
-        // print character at cursor current position (replace text if selected)
-        // trigger change event if value changed
+        /**
+         * Prints a non-combining key content at current cursor position (replace text if selected).
+         * Trigger change event if value changed.
+         * @param {jQuery collection} targets - collection of all the focusable inputs having a widget instance
+         * @param {String} keyChar - the key content to print
+         * @param {bool) isFull - wether or not the input is full
+         * @private
+         */
         _minkeyPrint: function (targets, keyChar, isFull) {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
@@ -214,7 +254,7 @@
             this.element[0].value = value.slice(0, selStart) + keyChar + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart + keyChar.length; // set cursor after current position
 
-            // redonne le focus au input
+            // gives the focus back to the input
             this.element.trigger(this.options.openevent);
             
             if (value !== this.element[0].value) {
@@ -226,16 +266,21 @@
                 });
             }
         },
-        
-        // keyChar must be a combining mark which can "merge" with a character to obtain normalized unicode character
-        // Ex: A majsucule accent grave = U+0041 U+0300 <=> À
-        // Update: normalize accent char using NFC.
-        // How to use accents from a pattern:
-        //  1/ enumerate the accents in the pattern within square brackets, along with other chars or ranges (accents are spaced-out for better readability in the example):
-        //       [ ́  ̀ ̂  ̈  A-Z]
-        //     The keyboard will pick-up the individual accents
-        //  2/ as combined accents are normalized into single chars, add the true range of accented letters to pass validation in your input, typically \u00C0-\u017F for french:
-        //       [ ́  ̀ ̂  ̈  \u00C0-\u017FA-Z]
+
+        /**
+         * Prints a combining key content at current cursor position (replace text if selected).
+         * @param {jQuery collection} targets - collection of all the focusable inputs having a widget instance
+         * @param {String} keyChar - must be a combining mark which can "merge" with a character to obtain normalized unicode character.
+         *        Ex: A uppercase grave accent = U+0041 U+0300 <=> À
+         *        Update: normalize accent char using NFC.
+         *        How to use accents from a pattern:
+         *          1/ enumerate the accents in the pattern within square brackets, along with other chars or ranges (accents are spaced-out for better readability in the example):
+         *            [ ́  ̀ ̂  ̈  A-Z]
+         *            The keyboard will pick-up the individual accents
+         *          2/ as combined accents are normalized into single chars, add the true range of accented letters to pass validation in your input, typically \u00C0-\u017F for french:
+         *            [ ́  ̀ ̂  ̈  \u00C0-\u017FA-Z]
+         * @private
+         */
         _minkeyCombine: function (targets, keyChar) {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
@@ -254,7 +299,7 @@
                 this.element[0].selectionStart = this.element[0].selectionEnd = selStart + newChar.length; // set cursor after current position
             }
 
-            // redonne le focus au input
+            // gives the focus back to the input
             this.element.trigger(this.options.openevent);
             
             if (value !== this.element[0].value) {
@@ -267,20 +312,24 @@
             }
         },
 
-        // delete text selected or character before current selection
-        // trigger change event if value changed
+        /**
+         * Deletes selected text or character before current selection.
+         * Triggers change event if value changed.
+         * @param {jQuery collection} targets - collection of all the focusable inputs having a widget instance
+         * @private
+         */
         _minkeySuppr: function (targets) {
             var selStart = this.element[0].selectionStart;
             var selEnd = this.element[0].selectionEnd;
             var value = this.element[0].value;
             
-            if (selEnd === selStart) { // pas de text selected
+            if (selEnd === selStart) { // no text selected
                 selStart = selStart > 0 ? selStart - 1 : selStart;
             }
             this.element[0].value = value.slice(0, selStart) + value.slice(selEnd);
             this.element[0].selectionStart = this.element[0].selectionEnd = selStart; // set cursor at current position
 
-            // redonne le focus au input
+            // gives the focus back to the input
             this.element.trigger(this.options.openevent);
             
             if (value !== this.element[0].value) {
@@ -293,42 +342,54 @@
             }
         },
 
-        // par défaut, quand on appuie sur valider, on focus le prochain élément ayant minkeyboard widget
-		// si le dernier element est atteint, on trigger blur event
+        /**
+         * By default, when the "validate" key is pressed, we gives the focus to the next input with a widget instance.
+         * If the last input is reached, we trigger the blur event.
+         *  Respects W3C by applying some instructions related to tabindex. Should not receive focus:
+         *  - hidden input element http://www.w3.org/TR/html5/editing.html#attr-tabindex
+         *  - disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
+         *  We could use jquery :visible:enabled selector but jquery ui core provides already the custom :focusable
+         * (different from :tabbable through the fact that tab index < 0 is focusable but not tabbable)
+         * Note: focusable seems to respect hidden input rule, but not tabbable! bug ?
+         * @param {jQuery collection} targets - collection of all the focusable inputs having a widget instance
+         * @private
+         */
         _minkeyValidate: function (targets) {
-            // respecte W3C en reprenant certaines instructions appliquées aux tabindex. Ne doivent pas recevoir de focus:
-            // - un input element hidden http://www.w3.org/TR/html5/editing.html#attr-tabindex
-            // - un disabled element http://www.w3.org/TR/html4/interact/forms.html#tabbing-navigation
-            // On pourrait utiliser jquery :visible:enabled selector mais jquery ui core fournit :focusable directement
-            // (différent de :tabbable par le fait que tab index < 0 est focusable mais pas tabbable)
-            // Note: focusable semble respecter hidden input, pas tabbable! bug ?
             var targetIndex = targets.index(this.element),
                 nextTargetIndex = targetIndex + 1;	
             
             if (this._trigger("validate", null, {
                     index: targetIndex,
                     targets: targets
-            }) !== false) { // si le user n'a pas preventDefault
-                this.close(); // ne pas oublier de fermer le current
+            }) !== false) { // if use did not preventDefault
+                this.close(); // do not forget to close the current
                 if (nextTargetIndex >= targets.length) {
-                    this.element.blur(); // fini!
+                    this.element.blur(); // done!
                 } else {
-                    targets.eq(nextTargetIndex).trigger(this.options.openevent); // give focus au prochain
+                    targets.eq(nextTargetIndex).trigger(this.options.openevent); // give focus to next input
                 }
             }
         },
 
-        // returns boolean indiquant si event canceled ou non
-        _minkeyPress: function (targets, keyName, keyChar) {        
-            // _trigger() est fourni par widget factory et permet de trigger un custom event
-            // keypress a ete defini en option pour que le user puisse listen via un callback qui sera evoque ici
-            // A noter qu'on peu listen sur son propre event aussi, et que si on performe une action, celle-ci sera
-            // automatiquement annulee si le user intercepte via preventDefault (ou return false)
-            // Dans ce cas _trigger() retourne false pour nous l'indiquer si besoin de traiter ce cas etc...
-            // Le 2e arg est le jquery event a l'origine. En passant null, on laisse jQuery creer tout seul un custom event object dont le type 'minkeyboard'
-            // est le nom du plugin et le name la concatenation 'minkeyboardfull'
-            //	Remarque: si le nom du plugin === event name (ex 'drag' plugin pour 'drag' event), le name n'est pas double en 'dragdrag' mais juste 'drag'
-            // Le callback recevra 1st arg le triggering event, 2nd arg custom ui object, et this fera référence à this.element
+        /**
+         * When a key is pressed, we detect early if the event was canceled or not by the user.
+         * @param {jQuery collection} targets - collection of all the focusable inputs having a widget instance
+         * @param keyName - the name of key pressed
+         * @param keyChar - the key content.
+         * @returns {bool} wether the key press was canceled or not
+         * @private
+         */
+        _minkeyPress: function (targets, keyName, keyChar) {
+            // INFO:
+            //    _trigger() is provided by widget factory and allows to trigger a custom event.
+            //    keypress was defined as option for the user to listen via callback called here.
+            //    Note that we can listen our event too, and that if we perform some action, it will be automatically
+            //    canceled if the user intercepts via preventDefault (or returns false).
+            //    In that case, _trigger() returns false to tell us if needed to handle the case etc...
+            //    The 2nd arg is the original jquery event. By passing null, we let jQuery create a custom event object whose type 'minkeyboard'
+            //    is the plugin name prepended with the event name, ex 'minkeyboardfull'.
+            //    Note: if the plugin name === event name (ex 'drag' plugin for 'drag' event), the name is doubled up as 'dragdrag' but reduced to 'drag'.
+            //    The callback will receive as 1st arg the triggereing event, 2nd arg the custom ui object, and 'this' will be a reference to this.element.
             var canceled = this._trigger("keypress", null, {
                 name: keyName,
                 char: keyChar,
@@ -339,10 +400,15 @@
             return canceled;
         },
 
-        // returns jquery object représentant une key
-        // utiliser un wrapper autour des touches permet de laisser le user ajuster plus facilement la proportion des touches
-        // relativement aux autres. Ex: sur un numpad, on veut la touche 0 occuper l'espace de 3 touches
-        // on veut donc touche 0 = 300% de son parent, qui est défini par le wrapper et changeable par css
+        /**
+         * Creates a DOM representation of a key.
+         * We use a wrapper for the key as it allows the user to more easily adjust the proportion of individual keys from css.
+         * Ex: for a numpad, the key '0' takes up the space of 3 keys, thus we want key 0 = 300% of its parent, which is defined by
+         * the wrapper and can be modified from css.
+         * @param {String} keyChar - the key content
+         * @returns {jQuery object} the DOM representation of the key
+         * @private
+         */
         _createKey: function (keyChar) {
             var keyName, key,
                 keyContent = '<span>' + keyChar + '</span>',
@@ -419,36 +485,43 @@
                         handler.call(this, targets, keyChar, valLength >= max);
                     }
                     /* Note: dealing with ui-state-default/active... is a pain in the ass:
-                     * Si on appui sur un bouton et glisse la souris pour la relâcher ailleurs, les états sont gardés
-                     * On préferera utiliser css :active pour ça! */
+                     * if we press a key but slide away with the mouse before releasing the button, states are kept.
+                     * We will prefer using css :active for that ! */
                 }
             });
             return key;
         },
-        // _create() est appele quand le widget est initialize sur une element collection, i.e: $('selector').minkeyboard() 
-        // Un widget instance est cree et le store dans le data() du current element avec pour key le namespaced nom du plugin:
-        // data("fab-minkeyboard", this instance)
-        // On y retrouvera notamment:
-        // - element: "reference vers le current element", => this.element est déjà set et distinct pour chaque element dans la collection
-        // - options: "copy des default options du plugin eventuellement overriden par options specifies par le client" => this.options est deja set
+
+        /**
+         * Widget factory create function.
+         * @private
+         */
+
+        // INFO:
+        //   _create() is called when the widget is initialized on a element or collection, i.e: $('selector').minkeyboard()
+        //   A widget instance is created and stored inside data() of the current element with key = the namespaced plugin name:
+        //      data("fab-minkeyboard", this instance)
+        //   We will also find there:
+        //   - element: "reference to the current element", => this.element is already set and distinct for each element in the collection
+        //   - options: "copy of the default plugin options optionnaly overriden by options specified by the user" => this.options is already set
         // })	
-        // Ceci est repete et une instance est cree pour chaque element si appele sur une collection
-        // ici, on override le default widget _create() method pour custom
+        // This is repeated and an instance is created for each element if called on a collection
         //
-        // Trick: un user peut en fait instancier un widget sans utiliser $('selector').minkeyboard({options...}) mais directement en appelant le constructor:
+        // Trick: a user can actually instanciate a widget without using $('selector').minkeyboard({options...}) by directly calling the constructor:
         //		$.fn.minkeyboard({options...}, $('selector'))
         //	
-        // Remarque: depuis jquery ui 1.11 la built-in method "instance" permet de retrouver notre instance sans passer par data():
+        // Note: since jquery ui 1.11 the built-in method "instance" allows us to retreive an instance without going through a call to data():
         //	$('selector').data("fab-minkeyboard").close() <=> $('selector').minkeyboard("instance").close()
-        //	A noter: dans ces 2 cas, undefined est retourne, alors que si methode appelee normalement via .minkeyboard("close"),		//	un jQuery object est retourne pour chaining (pour cela on doit retourner undefined dans notre methode)!
+        // In both cases, undefined is returned, whereas if the method is called normally via .minkeyboard("close"), a jQuery object is returned for chaining
+        // (we have to return undefined from our method for that)!
         _create: function () {
             this._createKeyboard();
 
-            // on ajoute au current element la classe "minkeyboard" (this.widgetFullName depuis jquery ui 1.9, avant on utilisant this.widgetBaseClass)
-            //this.element.addClass(this.widgetFullName || this.widgetBaseClass);
+            // we add the class "minkeyboard" to the current element (this.widgetFullName since jquery ui 1.9, before we made use of this.widgetBaseClass)
+            // this.element.addClass(this.widgetFullName || this.widgetBaseClass);
             this.element.addClass(this.widgetFullName + '-target');
 
-            // si l'element n'as pas de pattern, on lui autorise tout le keypad
+            // if the element does not contain a pattern attribute, we give it the whole keypad
             this.options.pattern = this.options.pattern || this.element.attr("pattern") || null; //'[' + this.options.keys.join("") + ']';//.replace(/([[\]-])/g, "\\$1") + ']';
             if (this.options.pattern) {
                 this._buildKeyboardFromPattern(this.options.pattern);
@@ -456,19 +529,18 @@
                 this._buildKeyboardFromKeyChars(this.options.keys);
             }
 
-            // _on() garde le contexte this sur notre widget intance
-            // + events sont automatiquement namespaced
-            // + autre avantage sur on(): permet au widget factory de detruire automatiquement nos events handlers on destroy
             var eventHandler = {};
-            eventHandler[this.options.openevent] = "open"; // accepte string (ancienne version) ou handler function ("open" <=> this.open)
+            eventHandler[this.options.openevent] = "open"; // accepts string (old version) or handler function ("open" <=> this.open)
 
+            // _on() keeps the 'this' context on our widget instance
+            // + events are automatically namespaced
+            // + another advantage over 'on': the widget factory can destroy automatically our event handlers on destroy
             this._on(this.element, eventHandler);
-            // quand on click n'importe où on fermera le widget, plus exactement, on cherchera à écouter mousedown
-            // car par ex si le user select un text en dehors de l'input, click n'a pas lieu alors qu'on voudra fermer le widget!
-            // Remarque: cet event est attache une fois par element present dans la jquery collection
-            // On se retrouve donc avec plusieurs handlers qui seront executes en sequence a chaque fois qu'on click qqpart:
-            // => c'est volontaire, car on s'en sert pour fermer automatiquement le widget en cours ouvert, sans avoir besoin
-            // de tester quel widget est ouvert pour quel element
+            // when we click anywhere we'll close the widget, more exactly, we'll seek to listen for mousedown because for example if the user selects a text outside the input,
+            // click is never triggered even though we still want to close the widget!
+            // Note: this event is attached once per element present in the jquery collection.
+            // We thus end up with multiple handlers that will be executed in sequence each time a click occurs somewhere:
+            // => this is on purpose, as we use it to automatically close the currently opened widget, without having to keep track of which widget is opened for which element
             this._on(this.document, {
                 mousedown: "close",
                 touchstart: "close",
@@ -483,8 +555,8 @@
                 match = [],
                 keyChars = "";
 
-            // version 0.1.1: on garde iterativement via exec() tout ce qui se trouve entre crochets
-            // pour ajouter/exclure les éléments présents dans keys
+            // version 0.1.1: we only keep what's inside brackets
+            // to include/exclude the characters that whould appear as keys
             while (match = parser.exec(pattern)) {
                 regex = new RegExp(match[0], 'g');
                 keyChars += this.options.keys.join("").match(regex).join("");
@@ -492,9 +564,13 @@
 
             this._buildKeyboardFromKeyChars(keyChars);
         },
-        
 
-		/* param keyChars can be string of single-characters or array */
+
+        /**
+         * Builds the keyboard from either a string (taking all chars as individual keys) or array (taking all string items as key content)
+         * @param {String|Array} keyChars
+         * @private
+         */
         _buildKeyboardFromKeyChars: function (keyChars) {
             var self = this,
                 padmap = {};
@@ -528,25 +604,35 @@
                 var destination = (pad === "controlpad" ? self.keyboard.find(".ui-widget-header") : self.keyboard.find(".ui-widget-content"));
                 destination.append(content);
             });
-        },            
+        },
 
-        // _destroy() est appele automatiquement quand destroy() est appele explicitement (aka par le user via .minkeyboard("destroy"))
-        // Ce code s'execute apres le built-in destroy()
-        // ou automatiquement quand le user remove() le DOM element ayant le widget en instance!
-        // Dans _destroy() on n'a pas besoin d'executer ce que fait deja le base destroy(), i.e:
-        //	- il supprime deja le widget instance du DOM element
-        //	- unbind all events dans le widget namespace (aka custom event comme minkeyboardfull)
-        //	- unbind all events ajoutes par _bind() ou _on()
-
+        /**
+         * Performs some cleanup.
+         * @private
+         */
+        // INFO:
+        //   _destroy() is automatically called when destroy() is called explicitly (aka by the user via .minkeyboard("destroy"))
+        //   This code executes after the built-in destroy() or automatically when the user remove() the DOM element having a widget instance.
+        //   In _destroy() we don't need to execute what is already done by the base destroy(), i.e:
+        //   - removes widget instance from the DOM element
+        //   - unbinds all events in the widget namespace (aka custom event like minkeyboardfull)
+        //   - unbinds all events added from _bind() or _on()
         _destroy: function () {
             this.element.removeClass(this.widgetFullName + '-target');
             this.keyboard.remove();
         },
 
-        // Appelé par _setOptions() automatiquement pour chaque option settée
-        // On peut setter une option directement sans passer par this.options en appelant directement built-in option()
-        // (fonctionne comme attr() ou css() pour getter/setter)
-        // si on a besoin de comparer la value courante de l'option on peut utiliser this.options[key]
+        /**
+         * Handle "pattern", "keys" and "layout" options to build the relevant keyboard.
+         * @param {String} key - the option key
+         * @param {*} value - the option value
+         * @private
+         */
+        // INFO:
+        //   Called by _setOptions() automatically for each option set
+        //   We can set an option directly without going through this.options by calling directly the built-in option()
+        //   (works like attr() or css() for getter/setter syntax)
+        //   If we need to compare the current option value we can use this.options[key]
         _setOption: function (key, value) {
             switch(key) {
                 case "pattern":
@@ -570,18 +656,18 @@
         },
     };
 
-    // Ceci permet d'initialiser le widget en heritant basic fonctionalite,
-    // Ici, jQuery ui va creer un jquery plugin comportant le nom passe en 1er param (doit comporter un namespace) i.e: $.fn.minkeyboard (sans tenir compte du namespace) (note:en interne $.widget.bridge est utilise).
-    // Un jquery plugin sera initialise et le context (this) fera reference a ce plugin, ce qui est different d'un jquery plugin
-    // traditionnel ou le contexte est un DOM element.
-    // Il construit notre constructor et assigne minkeyboardOverrides au prototype de toutes les instances du widget
-    //	- constructor: $.fab.minkeyboard()
-    //	- prototype: $.fab.minkeyboard.prototype (on peut lui ajouter aussi directement des methodes utilisables alors dans toutes les instances)
-    // On lui passe en 2nd param notre objet
-    // widget() accepte aussi un 3e param pour heriter d'un widget existant en creant un autre widget:
-    //		$.widget('fab.minkeyboard', $.ui.dialog, {...})
-    // Note: depuis jQuery ui 1.9 on veut redefinir un widget existant sans en creer un nouveau:
-    //		$.widget('ui-dialog', $.ui-dialog, {...})
-    //
+    // INFO:
+    //   This allows us to initialize the widget by inheriting basic functionality.
+    //   Here, jQuery ui will create a jquery plugin from the name passed as 1st arg (must contain a namespace) i.e: $.fn.minkeyboard (without taking the namespace into account).
+    //   (Note: internally, $.widget.bridge is used).
+    //   A standard jquery plugin will be initialized and the context (this) will be a reference to this plugin, which is different from a traditionnal jquery plugin where the context is the DOM element.
+    //   It builds a constructor and assigns minkeyboardOverrides to the prototype of all widget instances
+    //   - constructor: $.fab.minkeyboard()
+    //   - prototype: $.fab.minkeyboard.prototype (we can also directly add to it methods that can then be used by all instances)
+    //   We pass our object as 2nd arg.
+    //   widget() also accepts a 3rd arg to inherit an existing widget by creating another widget:
+    //       $.widget('fab.minkeyboard', $.ui.dialog, {...})
+    //   Note: since jQuery ui 1.9 we can redefine an existing widget without creating a new one:
+    //       $.widget('ui-dialog', $.ui-dialog, {...})
     $.widget('fab.minkeyboard', minkeyboardOverrides);
 }));
